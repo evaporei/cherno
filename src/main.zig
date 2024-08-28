@@ -121,8 +121,14 @@ pub fn main() !void {
 
     const positions = [_]f32{
         -0.5, -0.5,
-        0.0,  0.5,
+        0.5,  0.5,
         0.5,  -0.5,
+        -0.5, 0.5,
+    };
+
+    const indices = [_]u32{
+        0, 1, 2,
+        0, 1, 3,
     };
 
     var buffer: c_uint = undefined;
@@ -148,6 +154,13 @@ pub fn main() !void {
     // enable attrib position 0 (above)
     gl.EnableVertexAttribArray(0);
 
+    var ibo: c_uint = undefined;
+    gl.GenBuffers(1, (&ibo)[0..1]);
+    gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+    gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, indices.len * @sizeOf(u32), &indices, gl.STATIC_DRAW);
+    defer gl.DeleteBuffers(1, (&ibo)[0..1]);
+    defer gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, 0);
+
     const vertexShader = try readFile(allocator, "res/shaders/basic.vertex.shader");
     defer vertexShader.deinit();
 
@@ -165,9 +178,7 @@ pub fn main() !void {
         gl.ClearColor(0.0, 0.0, 0.0, 1.0);
         gl.Clear(gl.COLOR_BUFFER_BIT);
 
-        // (from index zero, count = 3)
-        // nothing yet
-        gl.DrawArrays(gl.TRIANGLES, 0, 3);
+        gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, 0);
 
         window.swapBuffers();
         glfw.pollEvents();
