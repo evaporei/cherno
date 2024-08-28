@@ -2,6 +2,8 @@ const std = @import("std");
 const glfw = @import("mach-glfw");
 const gl = @import("gl");
 
+const ArrayList = std.ArrayList;
+
 fn errorCallback(error_code: glfw.ErrorCode, description: [:0]const u8) void {
     std.log.err("glfw: {}: {s}\n", .{ error_code, description });
 }
@@ -12,9 +14,27 @@ fn processInput(window: *const glfw.Window) void {
     }
 }
 
+fn readFile(allocator: std.mem.Allocator, path: []const u8) !ArrayList(u8) {
+    var contents = ArrayList(u8).init(allocator);
+
+    const file = try std.fs.cwd().openFile(path, .{});
+    defer file.close();
+
+    var reader = file.reader();
+
+    while (true) {
+        var buf: [1024]u8 = undefined;
+        const len = try reader.read(&buf);
+        if (len == 0) break;
+        try contents.appendSlice(buf[0..len]);
+    }
+
+    return contents;
+}
+
 fn compileShader(kind: c_uint, src: []const u8) c_uint {
     const shader = gl.CreateShader(kind);
-    gl.ShaderSource(shader, 1, (&src.ptr)[0..1], null);
+    gl.ShaderSource(shader, 1, (&src.ptr)[0..1], (&@as(c_int, @intCast(src.len)))[0..1]);
     gl.CompileShader(shader);
 
     var result: c_int = undefined;
@@ -47,6 +67,9 @@ fn createProgram(vertexShader: []const u8, fragmentShader: []const u8) c_uint {
 var gl_procs: gl.ProcTable = undefined;
 
 pub fn main() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
+
     glfw.setErrorCallback(errorCallback);
     if (!glfw.init(.{})) {
         std.log.err("failed to initialize GLFW: {?s}", .{glfw.getErrorString()});
@@ -116,29 +139,13 @@ pub fn main() !void {
     // enable attrib position 0 (above)
     gl.EnableVertexAttribArray(0);
 
-    const vertexShader: []const u8 =
-        \\ #version 330 core
-        \\
-        \\ layout (location = 0) in vec4 position;
-        \\
-        \\ void main()
-        \\ {
-        \\  gl_Position = position;
-        \\ }
-    ;
+    const vertexShader = try readFile(allocator, "res/shaders/basic.vertex.shader");
+    defer vertexShader.deinit();
 
-    const fragmentShader: []const u8 =
-        \\ #version 330 core
-        \\
-        \\ layout (location = 0) out vec4 color;
-        \\
-        \\ void main()
-        \\ {
-        \\  color = vec4(1.0, 0.0, 0.0, 1.0);
-        \\ }
-    ;
+    const fragmentShader = try readFile(allocator, "res/shaders/basic.fragment.shader");
+    defer fragmentShader.deinit();
 
-    const program = createProgram(vertexShader, fragmentShader);
+    const program = createProgram(vertexShader.items, fragmentShader.items);
     gl.UseProgram(program);
 
     while (!window.shouldClose()) {
