@@ -12,6 +12,8 @@ fn processInput(window: *const glfw.Window) void {
     }
 }
 
+var gl_procs: gl.ProcTable = undefined;
+
 pub fn main() !void {
     glfw.setErrorCallback(errorCallback);
     if (!glfw.init(.{})) {
@@ -37,8 +39,19 @@ pub fn main() !void {
     // enables VSync, to avoid unnecessary drawing
     glfw.swapInterval(1);
 
+    if (!gl_procs.init(glfw.getProcAddress)) {
+        std.log.err("failed to load OpenGL functions: {?s}", .{glfw.getErrorString()});
+        std.process.exit(1);
+    }
+
+    gl.makeProcTableCurrent(&gl_procs);
+    defer gl.makeProcTableCurrent(null);
+
     while (!window.shouldClose()) {
         processInput(&window);
+
+        gl.ClearColor(0.0, 0.0, 0.0, 1.0);
+        gl.Clear(gl.COLOR_BUFFER_BIT);
 
         window.swapBuffers();
         glfw.pollEvents();
