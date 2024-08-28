@@ -12,6 +12,38 @@ fn processInput(window: *const glfw.Window) void {
     }
 }
 
+fn compileShader(kind: c_uint, src: []const u8) c_uint {
+    const shader = gl.CreateShader(kind);
+    gl.ShaderSource(shader, 1, (&src.ptr)[0..1], null);
+    gl.CompileShader(shader);
+
+    var result: c_int = undefined;
+    gl.GetShaderiv(shader, gl.COMPILE_STATUS, &result);
+    if (result == gl.FALSE) {
+        var message: [512]u8 = undefined;
+        gl.GetShaderInfoLog(shader, message.len, null, &message);
+        std.log.err("failed to compile vertex shader: {s}", .{std.mem.sliceTo(&message, 0)});
+    }
+
+    return shader;
+}
+
+fn createProgram(vertexShader: []const u8, fragmentShader: []const u8) c_uint {
+    const program = gl.CreateProgram();
+
+    const vs = compileShader(gl.VERTEX_SHADER, vertexShader);
+    defer gl.DeleteShader(vs);
+    const fs = compileShader(gl.FRAGMENT_SHADER, fragmentShader);
+    defer gl.DeleteShader(fs);
+
+    gl.AttachShader(program, vs);
+    gl.AttachShader(program, fs);
+    gl.LinkProgram(program);
+    gl.ValidateProgram(program);
+
+    return program;
+}
+
 var gl_procs: gl.ProcTable = undefined;
 
 pub fn main() !void {
@@ -47,6 +79,14 @@ pub fn main() !void {
     gl.makeProcTableCurrent(&gl_procs);
     defer gl.makeProcTableCurrent(null);
 
+    // not in the cherno tutorial, I found out in the comments
+    var vao: c_uint = undefined;
+    gl.GenVertexArrays(1, (&vao)[0..1]);
+    defer gl.DeleteVertexArrays(1, (&vao)[0..1]);
+
+    gl.BindVertexArray(vao);
+    defer gl.BindVertexArray(0);
+
     const positions = [_]f32{
         -0.5, -0.5,
         0.0,  0.5,
@@ -75,6 +115,31 @@ pub fn main() !void {
     // zig fmt: on
     // enable attrib position 0 (above)
     gl.EnableVertexAttribArray(0);
+
+    const vertexShader: []const u8 =
+        \\ #version 330 core
+        \\
+        \\ layout (location = 0) in vec4 position;
+        \\
+        \\ void main()
+        \\ {
+        \\  gl_Position = position;
+        \\ }
+    ;
+
+    const fragmentShader: []const u8 =
+        \\ #version 330 core
+        \\
+        \\ layout (location = 0) out vec4 color;
+        \\
+        \\ void main()
+        \\ {
+        \\  color = vec4(1.0, 0.0, 0.0, 1.0);
+        \\ }
+    ;
+
+    const program = createProgram(vertexShader, fragmentShader);
+    gl.UseProgram(program);
 
     while (!window.shouldClose()) {
         processInput(&window);
