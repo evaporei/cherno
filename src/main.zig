@@ -47,11 +47,31 @@ pub fn main() !void {
     gl.makeProcTableCurrent(&gl_procs);
     defer gl.makeProcTableCurrent(null);
 
+    const positions = [_]f32{
+        -0.5, -0.5,
+        0.0,  0.5,
+        0.5,  -0.5,
+    };
+
+    var buffer: c_uint = undefined;
+    // create(how many, id)
+    gl.GenBuffers(1, (&buffer)[0..1]);
+    defer gl.DeleteBuffers(1, (&buffer)[0..1]);
+    // select
+    gl.BindBuffer(gl.ARRAY_BUFFER, buffer);
+    defer gl.BindBuffer(gl.ARRAY_BUFFER, 0);
+    // load buffer to GPU
+    gl.BufferData(gl.ARRAY_BUFFER, positions.len * @sizeOf(f32), &positions, gl.STATIC_DRAW);
+
     while (!window.shouldClose()) {
         processInput(&window);
 
         gl.ClearColor(0.0, 0.0, 0.0, 1.0);
         gl.Clear(gl.COLOR_BUFFER_BIT);
+
+        // (from index zero, count = 3)
+        // nothing yet
+        gl.DrawArrays(gl.TRIANGLES, 0, 3);
 
         window.swapBuffers();
         glfw.pollEvents();
