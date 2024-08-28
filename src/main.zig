@@ -64,6 +64,15 @@ fn createProgram(vertexShader: []const u8, fragmentShader: []const u8) c_uint {
     return program;
 }
 
+fn glCheckError() void {
+    var err = gl.GetError();
+    while (err != gl.NO_ERROR) {
+        // cringe, just a number
+        std.debug.print("{}", .{err});
+        err = gl.GetError();
+    }
+}
+
 var gl_procs: gl.ProcTable = undefined;
 
 pub fn main() !void {
@@ -147,6 +156,8 @@ pub fn main() !void {
 
     const program = createProgram(vertexShader.items, fragmentShader.items);
     gl.UseProgram(program);
+
+    glCheckError();
 
     while (!window.shouldClose()) {
         processInput(&window);
