@@ -170,6 +170,10 @@ pub fn main() !void {
     const program = createProgram(vertexShader.items, fragmentShader.items);
     gl.UseProgram(program);
 
+    const location = gl.GetUniformLocation(program, "u_Color");
+    std.debug.assert(location != -1);
+    gl.Uniform4f(location, 0.8, 0.3, 0.8, 1.0);
+
     glCheckError();
 
     while (!window.shouldClose()) {
