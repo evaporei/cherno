@@ -63,6 +63,19 @@ pub fn main() !void {
     // load buffer to GPU
     gl.BufferData(gl.ARRAY_BUFFER, positions.len * @sizeOf(f32), &positions, gl.STATIC_DRAW);
 
+    // zig fmt: off
+    gl.VertexAttribPointer(
+        0, // position in shader
+        2, // each has 2
+        gl.FLOAT, // type
+        gl.FALSE, // no normals translation
+        2 * @sizeOf(f32), // each vertex has 2 floats
+        undefined
+    );
+    // zig fmt: on
+    // enable attrib position 0 (above)
+    gl.EnableVertexAttribArray(0);
+
     while (!window.shouldClose()) {
         processInput(&window);
 
