@@ -2,6 +2,9 @@ const std = @import("std");
 const glfw = @import("mach-glfw");
 const gl = @import("gl");
 
+const root = @import("root.zig");
+const VertexBuffer = root.VertexBuffer;
+
 const ArrayList = std.ArrayList;
 
 fn errorCallback(error_code: glfw.ErrorCode, description: [:0]const u8) void {
@@ -131,15 +134,8 @@ pub fn main() !void {
         0, 1, 3,
     };
 
-    var buffer: c_uint = undefined;
-    // create(how many, id)
-    gl.GenBuffers(1, (&buffer)[0..1]);
-    defer gl.DeleteBuffers(1, (&buffer)[0..1]);
-    // select
-    gl.BindBuffer(gl.ARRAY_BUFFER, buffer);
-    defer gl.BindBuffer(gl.ARRAY_BUFFER, 0);
-    // load buffer to GPU
-    gl.BufferData(gl.ARRAY_BUFFER, positions.len * @sizeOf(f32), &positions, gl.STATIC_DRAW);
+    const buffer = VertexBuffer.init(@ptrCast(&positions), positions.len * @sizeOf(f32));
+    defer buffer.deinit();
 
     // zig fmt: off
     gl.VertexAttribPointer(
