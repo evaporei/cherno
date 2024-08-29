@@ -3,6 +3,7 @@ const glfw = @import("mach-glfw");
 const gl = @import("gl");
 
 const root = @import("root.zig");
+const VertexArray = root.VertexArray;
 const VertexBuffer = root.VertexBuffer;
 const IndexBuffer = root.IndexBuffer;
 
@@ -68,11 +69,40 @@ fn createProgram(vertexShader: []const u8, fragmentShader: []const u8) c_uint {
     return program;
 }
 
+// https://www.khronos.org/opengl/wiki/OpenGL_Error#Meaning_of_errors
+/// GL_INVALID_ENUM, 0x0500
+// Given when an enumeration parameter is not a legal enumeration for that function. This is given only for local problems; if the spec allows the enumeration in certain circumstances, where other parameters or state dictate those circumstances, then GL_INVALID_OPERATION is the result instead.
+/// GL_INVALID_VALUE, 0x0501
+// Given when a value parameter is not a legal value for that function. This is only given for local problems; if the spec allows the value in certain circumstances, where other parameters or state dictate those circumstances, then GL_INVALID_OPERATION is the result instead.
+/// GL_INVALID_OPERATION, 0x0502
+// Given when the set of state for a command is not legal for the parameters given to that command. It is also given for commands where combinations of parameters define what the legal parameters are.
+/// GL_STACK_OVERFLOW, 0x0503
+// Given when a stack pushing operation cannot be done because it would overflow the limit of that stack's size.
+/// GL_STACK_UNDERFLOW, 0x0504
+// Given when a stack popping operation cannot be done because the stack is already at its lowest point.
+/// GL_OUT_OF_MEMORY, 0x0505
+// Given when performing an operation that can allocate memory, and the memory cannot be allocated. The results of OpenGL functions that return this error are undefined; it is allowable for partial execution of an operation to happen in this circumstance.
+/// GL_INVALID_FRAMEBUFFER_OPERATION, 0x0506
+// Given when doing anything that would attempt to read from or write/render to a framebuffer that is not complete.
+/// GL_CONTEXT_LOST, 0x0507 (with OpenGL 4.5 or ARB_KHR_robustness)
+// Given if the OpenGL context has been lost, due to a graphics card reset.
+/// GL_TABLE_TOO_LARGE1, 0x8031
+// Part of the ARB_imaging extension.
 fn glCheckError() void {
     var err = gl.GetError();
     while (err != gl.NO_ERROR) {
-        // cringe, just a number
-        std.debug.print("{}", .{err});
+        std.debug.print("error code 0x{x}: ", .{err});
+        switch (err) {
+            gl.INVALID_ENUM => std.debug.print("enum param not legal\n", .{}),
+            gl.INVALID_VALUE => std.debug.print("value param not legal\n", .{}),
+            gl.INVALID_OPERATION => std.debug.print("set state is ilegal for given command\n", .{}),
+            // gl.STACK_OVERFLOW => std.debug.print("stack pushing operation overflown (over stack size...)\n", .{}),
+            // gl.STACK_UNDERFLOW => std.debug.print("stack popping operation underflown (already at lowest point)\n", .{}),
+            gl.OUT_OF_MEMORY => std.debug.print("memory could not be allocated (command needed to allocate and failed)\n", .{}),
+            gl.INVALID_FRAMEBUFFER_OPERATION => std.debug.print("failed to read/write to framebuffer (it's incomplete)\n", .{}),
+            // gl.TABLE_TOO_LARGE => std.debug.print("this shouldn't happen (table too large)\n", .{}),
+            else => std.debug.print("wtf did I just receive??\n", .{}),
+        }
         err = gl.GetError();
     }
 }
@@ -115,13 +145,8 @@ pub fn main() !void {
     gl.makeProcTableCurrent(&gl_procs);
     defer gl.makeProcTableCurrent(null);
 
-    // not in the cherno tutorial, I found out in the comments
-    var vao: c_uint = undefined;
-    gl.GenVertexArrays(1, (&vao)[0..1]);
-    defer gl.DeleteVertexArrays(1, (&vao)[0..1]);
-
-    gl.BindVertexArray(vao);
-    defer gl.BindVertexArray(0);
+    var vertexArray = VertexArray.init();
+    defer vertexArray.deinit();
 
     const positions = [_]f32{
         -0.5, -0.5,
@@ -138,21 +163,14 @@ pub fn main() !void {
     const vertexBuffer = VertexBuffer.init(@constCast(&positions), positions.len * @sizeOf(f32));
     defer vertexBuffer.deinit();
 
-    // zig fmt: off
-    gl.VertexAttribPointer(
-        0, // position in shader
-        2, // each has 2
-        gl.FLOAT, // type
-        gl.FALSE, // no normals translation
-        2 * @sizeOf(f32), // each vertex has 2 floats
-        undefined
-    );
-    // zig fmt: on
-    // enable attrib position 0 (above)
-    gl.EnableVertexAttribArray(0);
-
     const indexBuffer = IndexBuffer.init(@constCast(&indices), 6);
     defer indexBuffer.deinit();
+
+    var layout = VertexBuffer.Layout.init(allocator);
+    defer layout.deinit();
+    try layout.push(f32, 2);
+
+    vertexArray.addBuffer(vertexBuffer, layout);
 
     const vertexShader = try readFile(allocator, "res/shaders/basic.vertex.shader");
     defer vertexShader.deinit();
