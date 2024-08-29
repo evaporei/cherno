@@ -4,6 +4,7 @@ const gl = @import("gl");
 
 const root = @import("root.zig");
 const VertexBuffer = root.VertexBuffer;
+const IndexBuffer = root.IndexBuffer;
 
 const ArrayList = std.ArrayList;
 
@@ -134,8 +135,8 @@ pub fn main() !void {
         0, 1, 3,
     };
 
-    const buffer = VertexBuffer.init(@ptrCast(&positions), positions.len * @sizeOf(f32));
-    defer buffer.deinit();
+    const vertexBuffer = VertexBuffer.init(@constCast(&positions), positions.len * @sizeOf(f32));
+    defer vertexBuffer.deinit();
 
     // zig fmt: off
     gl.VertexAttribPointer(
@@ -150,12 +151,8 @@ pub fn main() !void {
     // enable attrib position 0 (above)
     gl.EnableVertexAttribArray(0);
 
-    var ibo: c_uint = undefined;
-    gl.GenBuffers(1, (&ibo)[0..1]);
-    gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-    gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, indices.len * @sizeOf(u32), &indices, gl.STATIC_DRAW);
-    defer gl.DeleteBuffers(1, (&ibo)[0..1]);
-    defer gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, 0);
+    const indexBuffer = IndexBuffer.init(@constCast(&indices), 6);
+    defer indexBuffer.deinit();
 
     const vertexShader = try readFile(allocator, "res/shaders/basic.vertex.shader");
     defer vertexShader.deinit();
