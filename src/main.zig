@@ -176,13 +176,25 @@ pub fn main() !void {
 
     glCheckError();
 
+    var r: f32 = 0;
+    var increment: f32 = 0.05;
+
     while (!window.shouldClose()) {
         processInput(&window);
 
         gl.ClearColor(0.0, 0.0, 0.0, 1.0);
         gl.Clear(gl.COLOR_BUFFER_BIT);
 
+        gl.Uniform4f(location, r, 0.3, 0.8, 1.0);
         gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, 0);
+
+        if (r > 1.0) {
+            increment = -0.05;
+        } else if (r < 0.0) {
+            increment = 0.05;
+        }
+
+        r += increment;
 
         window.swapBuffers();
         glfw.pollEvents();
