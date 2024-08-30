@@ -6,6 +6,7 @@ const root = @import("root.zig");
 const VertexArray = root.VertexArray;
 const VertexBuffer = root.VertexBuffer;
 const IndexBuffer = root.IndexBuffer;
+const Shader = root.Shader;
 
 const ArrayList = std.ArrayList;
 
@@ -35,38 +36,6 @@ fn readFile(allocator: std.mem.Allocator, path: []const u8) !ArrayList(u8) {
     }
 
     return contents;
-}
-
-fn compileShader(kind: c_uint, src: []const u8) c_uint {
-    const shader = gl.CreateShader(kind);
-    gl.ShaderSource(shader, 1, (&src.ptr)[0..1], (&@as(c_int, @intCast(src.len)))[0..1]);
-    gl.CompileShader(shader);
-
-    var result: c_int = undefined;
-    gl.GetShaderiv(shader, gl.COMPILE_STATUS, &result);
-    if (result == gl.FALSE) {
-        var message: [512]u8 = undefined;
-        gl.GetShaderInfoLog(shader, message.len, null, &message);
-        std.log.err("failed to compile vertex shader: {s}", .{std.mem.sliceTo(&message, 0)});
-    }
-
-    return shader;
-}
-
-fn createProgram(vertexShader: []const u8, fragmentShader: []const u8) c_uint {
-    const program = gl.CreateProgram();
-
-    const vs = compileShader(gl.VERTEX_SHADER, vertexShader);
-    defer gl.DeleteShader(vs);
-    const fs = compileShader(gl.FRAGMENT_SHADER, fragmentShader);
-    defer gl.DeleteShader(fs);
-
-    gl.AttachShader(program, vs);
-    gl.AttachShader(program, fs);
-    gl.LinkProgram(program);
-    gl.ValidateProgram(program);
-
-    return program;
 }
 
 // https://www.khronos.org/opengl/wiki/OpenGL_Error#Meaning_of_errors
@@ -172,18 +141,16 @@ pub fn main() !void {
 
     vertexArray.addBuffer(vertexBuffer, layout);
 
-    const vertexShader = try readFile(allocator, "res/shaders/basic.vertex.shader");
-    defer vertexShader.deinit();
+    const vertexShaderSrc = try readFile(allocator, "res/shaders/basic.vertex.shader");
+    defer vertexShaderSrc.deinit();
 
-    const fragmentShader = try readFile(allocator, "res/shaders/basic.fragment.shader");
-    defer fragmentShader.deinit();
+    const fragmentShaderSrc = try readFile(allocator, "res/shaders/basic.fragment.shader");
+    defer fragmentShaderSrc.deinit();
 
-    const program = createProgram(vertexShader.items, fragmentShader.items);
-    gl.UseProgram(program);
+    const shader = Shader.init(vertexShaderSrc.items, fragmentShaderSrc.items);
+    shader.bind();
 
-    const location = gl.GetUniformLocation(program, "u_Color");
-    std.debug.assert(location != -1);
-    gl.Uniform4f(location, 0.8, 0.3, 0.8, 1.0);
+    shader.setUniform4f("u_Color", 0.8, 0.3, 0.8, 1.0);
 
     glCheckError();
 
@@ -196,7 +163,7 @@ pub fn main() !void {
         gl.ClearColor(0.0, 0.0, 0.0, 1.0);
         gl.Clear(gl.COLOR_BUFFER_BIT);
 
-        gl.Uniform4f(location, r, 0.3, 0.8, 1.0);
+        shader.setUniform4f("u_Color", r, 0.3, 0.8, 1.0);
         gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, 0);
 
         if (r > 1.0) {
