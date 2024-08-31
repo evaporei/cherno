@@ -84,6 +84,11 @@ pub const Shader = struct {
         gl.UseProgram(0);
     }
 
+    pub fn setUniform1i(self: *Shader, name: []const u8, value: c_int) !void {
+        const location = try self.getUniformLocation(name);
+        gl.Uniform1i(location, value);
+    }
+
     // TODO: use/create vector library
     pub fn setUniform4f(self: *Shader, name: []const u8, v0: f32, v1: f32, v2: f32, v3: f32) !void {
         const location = try self.getUniformLocation(name);

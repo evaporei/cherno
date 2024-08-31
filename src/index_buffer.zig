@@ -8,7 +8,7 @@ pub const IndexBuffer = struct {
 
     pub fn init(data: []u32, count: u32) Self {
         var openGlId: c_uint = undefined;
-        gl.GenBuffers(1, (&openGlId)[0..1]);
+        gl.GenBuffers(1, @ptrCast(&openGlId));
         gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, openGlId);
         gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, count * @sizeOf(u32), @ptrCast(data), gl.STATIC_DRAW);
         return Self{ .openGlId = openGlId, .count = count };

@@ -48,6 +48,12 @@ pub fn build(b: *std.Build) void {
     });
     exe.root_module.addImport("gl", gl_bindings);
 
+    const stb_image_dep = b.dependency("zig_stb_image", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    exe.root_module.addImport("stb-image", stb_image_dep.module("stb_image"));
+
     // This declares intent for the executable to be installed into the
     // standard location when the user invokes the "install" step (the default
     // step when running `zig build`).

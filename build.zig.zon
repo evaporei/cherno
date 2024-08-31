@@ -23,6 +23,10 @@
             .url = "https://github.com/castholm/zigglgen/releases/download/v0.2.3/zigglgen.tar.gz",
             .hash = "1220f4188a5e1bdbb15fd50e9ea322c0721384eeba9bc077e4179b0b0eeaa7fe4ad9",
         },
+        .zig_stb_image = .{
+            .url = "https://github.com/evaporei/zig-stb-image/archive/b960c49d118f8c0db68bd525acba854c0a8b3e94.tar.gz",
+            .hash = "12202f50362f16caa49a2311fe9f95ae549ebe3406f862a3a91e5a6970a97278ec57",
+        },
         // See `zig fetch --save <url>` for a command-line interface for adding dependencies.
         //.example = .{
         //    // When updating this field to a new URL, be sure to delete the corresponding

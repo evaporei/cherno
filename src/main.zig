@@ -8,6 +8,7 @@ const VertexBuffer = root.VertexBuffer;
 const IndexBuffer = root.IndexBuffer;
 const Shader = root.Shader;
 const Renderer = root.Renderer;
+const Texture = root.Texture;
 
 fn errorCallback(error_code: glfw.ErrorCode, description: [:0]const u8) void {
     std.log.err("glfw: {}: {s}\n", .{ error_code, description });
@@ -95,20 +96,25 @@ pub fn main() !void {
     gl.makeProcTableCurrent(&gl_procs);
     defer gl.makeProcTableCurrent(null);
 
-    var vertexArray = VertexArray.init();
-    defer vertexArray.deinit();
-
     const positions = [_]f32{
-        -0.5, -0.5,
-        0.5,  0.5,
-        0.5,  -0.5,
-        -0.5, 0.5,
+        -0.5, -0.5, 0.0, 0.0,
+        0.5,  -0.5, 1.0, 0.0,
+        0.5,  0.5,  1.0, 1.0,
+        -0.5, 0.5,  0.0, 1.0,
     };
 
     const indices = [_]u32{
         0, 1, 2,
-        0, 1, 3,
+        2, 3, 0,
     };
+
+    std.debug.print("{s}\n", .{gl.GetString(gl.VERSION).?});
+
+    gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.Enable(gl.BLEND);
+
+    var vertexArray = VertexArray.init();
+    defer vertexArray.deinit();
 
     const vertexBuffer = VertexBuffer.init(@constCast(&positions), positions.len * @sizeOf(f32));
     defer vertexBuffer.deinit();
@@ -119,12 +125,19 @@ pub fn main() !void {
     var layout = VertexBuffer.Layout.init(allocator);
     defer layout.deinit();
     try layout.push(f32, 2);
+    try layout.push(f32, 2);
 
     vertexArray.addBuffer(vertexBuffer, layout);
 
     var shader = try Shader.init(allocator, "res/shaders/basic.vertex.shader", "res/shaders/basic.fragment.shader");
     defer shader.deinit();
     shader.bind();
+
+    var texture = try Texture.init("res/textures/cherno_logo.png");
+    defer texture.deinit();
+
+    texture.bind(0);
+    try shader.setUniform1i("u_Texture", 0);
 
     const renderer = Renderer.init();
 
