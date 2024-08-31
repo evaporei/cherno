@@ -7,6 +7,7 @@ const VertexArray = root.VertexArray;
 const VertexBuffer = root.VertexBuffer;
 const IndexBuffer = root.IndexBuffer;
 const Shader = root.Shader;
+const Renderer = root.Renderer;
 
 const ArrayList = std.ArrayList;
 
@@ -151,6 +152,8 @@ pub fn main() !void {
     defer shader.deinit();
     shader.bind();
 
+    const renderer = Renderer.init();
+
     try shader.setUniform4f("u_Color", 0.8, 0.3, 0.8, 1.0);
 
     glCheckError();
@@ -161,11 +164,10 @@ pub fn main() !void {
     while (!window.shouldClose()) {
         processInput(&window);
 
-        gl.ClearColor(0.0, 0.0, 0.0, 1.0);
-        gl.Clear(gl.COLOR_BUFFER_BIT);
+        renderer.clear();
 
         try shader.setUniform4f("u_Color", r, 0.3, 0.8, 1.0);
-        gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, 0);
+        renderer.draw(vertexArray, indexBuffer, shader);
 
         if (r > 1.0) {
             increment = -0.05;

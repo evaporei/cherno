@@ -12,7 +12,7 @@ pub const VertexArray = struct {
         return VertexArray{ .openGlId = openGlId };
     }
 
-    fn bind(self: *VertexArray) void {
+    pub fn bind(self: VertexArray) void {
         gl.BindVertexArray(self.openGlId);
     }
 
