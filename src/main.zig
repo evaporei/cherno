@@ -147,10 +147,11 @@ pub fn main() !void {
     const fragmentShaderSrc = try readFile(allocator, "res/shaders/basic.fragment.shader");
     defer fragmentShaderSrc.deinit();
 
-    const shader = Shader.init(vertexShaderSrc.items, fragmentShaderSrc.items);
+    var shader = Shader.init(vertexShaderSrc.items, fragmentShaderSrc.items);
+    defer shader.deinit();
     shader.bind();
 
-    shader.setUniform4f("u_Color", 0.8, 0.3, 0.8, 1.0);
+    try shader.setUniform4f("u_Color", 0.8, 0.3, 0.8, 1.0);
 
     glCheckError();
 
@@ -163,7 +164,7 @@ pub fn main() !void {
         gl.ClearColor(0.0, 0.0, 0.0, 1.0);
         gl.Clear(gl.COLOR_BUFFER_BIT);
 
-        shader.setUniform4f("u_Color", r, 0.3, 0.8, 1.0);
+        try shader.setUniform4f("u_Color", r, 0.3, 0.8, 1.0);
         gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, 0);
 
         if (r > 1.0) {

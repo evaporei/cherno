@@ -1,6 +1,8 @@
 const std = @import("std");
 const gl = @import("gl");
 
+const StringHashMap = std.StringHashMap;
+
 fn compileShader(kind: c_uint, src: []const u8) c_uint {
     const shader = gl.CreateShader(kind);
     gl.ShaderSource(shader, 1, (&src.ptr)[0..1], (&@as(c_int, @intCast(src.len)))[0..1]);
@@ -19,6 +21,7 @@ fn compileShader(kind: c_uint, src: []const u8) c_uint {
 
 pub const Shader = struct {
     openGlId: c_uint,
+    uniformLocationCache: StringHashMap(c_int),
 
     pub fn init(vertexShaderSrc: []const u8, fragmentShaderSrc: []const u8) Shader {
         const program = gl.CreateProgram();
@@ -35,7 +38,16 @@ pub const Shader = struct {
 
         return Shader{
             .openGlId = program,
+            // we'll barely allocate here,
+            // it's fine to use this allocator
+            //
+            // I actually wanted a hashmap on the stack
+            .uniformLocationCache = StringHashMap(c_int).init(std.heap.page_allocator),
         };
+    }
+
+    pub fn deinit(self: *Shader) void {
+        self.uniformLocationCache.deinit();
     }
 
     pub fn bind(self: Shader) void {
@@ -47,11 +59,20 @@ pub const Shader = struct {
     }
 
     // TODO: use/create vector library
-    pub fn setUniform4f(self: Shader, name: []const u8, v0: f32, v1: f32, v2: f32, v3: f32) void {
+    pub fn setUniform4f(self: *Shader, name: []const u8, v0: f32, v1: f32, v2: f32, v3: f32) !void {
+        const location = try self.getUniformLocation(name);
+        gl.Uniform4f(location, v0, v1, v2, v3);
+    }
+
+    fn getUniformLocation(self: *Shader, name: []const u8) !c_int {
+        if (self.uniformLocationCache.get(name) != null) {
+            return self.uniformLocationCache.get(name).?;
+        }
         const location = gl.GetUniformLocation(self.openGlId, @ptrCast(name.ptr));
         if (location == -1) {
             std.debug.print("ur not using the uniform bitch\n", .{});
         }
-        gl.Uniform4f(location, v0, v1, v2, v3);
+        try self.uniformLocationCache.put(name, location);
+        return self.uniformLocationCache.get(name).?;
     }
 };
