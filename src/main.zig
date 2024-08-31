@@ -9,8 +9,6 @@ const IndexBuffer = root.IndexBuffer;
 const Shader = root.Shader;
 const Renderer = root.Renderer;
 
-const ArrayList = std.ArrayList;
-
 fn errorCallback(error_code: glfw.ErrorCode, description: [:0]const u8) void {
     std.log.err("glfw: {}: {s}\n", .{ error_code, description });
 }
@@ -19,24 +17,6 @@ fn processInput(window: *const glfw.Window) void {
     if (window.getKey(glfw.Key.escape) == glfw.Action.press) {
         window.setShouldClose(true);
     }
-}
-
-fn readFile(allocator: std.mem.Allocator, path: []const u8) !ArrayList(u8) {
-    var contents = ArrayList(u8).init(allocator);
-
-    const file = try std.fs.cwd().openFile(path, .{});
-    defer file.close();
-
-    var reader = file.reader();
-
-    while (true) {
-        var buf: [1024]u8 = undefined;
-        const len = try reader.read(&buf);
-        if (len == 0) break;
-        try contents.appendSlice(buf[0..len]);
-    }
-
-    return contents;
 }
 
 // https://www.khronos.org/opengl/wiki/OpenGL_Error#Meaning_of_errors
@@ -142,13 +122,7 @@ pub fn main() !void {
 
     vertexArray.addBuffer(vertexBuffer, layout);
 
-    const vertexShaderSrc = try readFile(allocator, "res/shaders/basic.vertex.shader");
-    defer vertexShaderSrc.deinit();
-
-    const fragmentShaderSrc = try readFile(allocator, "res/shaders/basic.fragment.shader");
-    defer fragmentShaderSrc.deinit();
-
-    var shader = Shader.init(vertexShaderSrc.items, fragmentShaderSrc.items);
+    var shader = try Shader.init(allocator, "res/shaders/basic.vertex.shader", "res/shaders/basic.fragment.shader");
     defer shader.deinit();
     shader.bind();
 

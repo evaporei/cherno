@@ -1,7 +1,25 @@
 const std = @import("std");
 const gl = @import("gl");
 
-const StringHashMap = std.StringHashMap;
+const ArrayList = std.ArrayList;
+
+fn readFile(allocator: std.mem.Allocator, path: []const u8) !ArrayList(u8) {
+    var contents = ArrayList(u8).init(allocator);
+
+    const file = try std.fs.cwd().openFile(path, .{});
+    defer file.close();
+
+    var reader = file.reader();
+
+    while (true) {
+        var buf: [1024]u8 = undefined;
+        const len = try reader.read(&buf);
+        if (len == 0) break;
+        try contents.appendSlice(buf[0..len]);
+    }
+
+    return contents;
+}
 
 fn compileShader(kind: c_uint, src: []const u8) c_uint {
     const shader = gl.CreateShader(kind);
@@ -19,16 +37,24 @@ fn compileShader(kind: c_uint, src: []const u8) c_uint {
     return shader;
 }
 
+const StringHashMap = std.StringHashMap;
+
 pub const Shader = struct {
     openGlId: c_uint,
     uniformLocationCache: StringHashMap(c_int),
 
-    pub fn init(vertexShaderSrc: []const u8, fragmentShaderSrc: []const u8) Shader {
+    pub fn init(allocator: std.mem.Allocator, vertexShaderPath: []const u8, fragmentShaderPath: []const u8) !Shader {
+        const vertexShaderSrc = try readFile(allocator, vertexShaderPath);
+        defer vertexShaderSrc.deinit();
+
+        const fragmentShaderSrc = try readFile(allocator, fragmentShaderPath);
+        defer fragmentShaderSrc.deinit();
+
         const program = gl.CreateProgram();
 
-        const vs = compileShader(gl.VERTEX_SHADER, vertexShaderSrc);
+        const vs = compileShader(gl.VERTEX_SHADER, vertexShaderSrc.items);
         defer gl.DeleteShader(vs);
-        const fs = compileShader(gl.FRAGMENT_SHADER, fragmentShaderSrc);
+        const fs = compileShader(gl.FRAGMENT_SHADER, fragmentShaderSrc.items);
         defer gl.DeleteShader(fs);
 
         gl.AttachShader(program, vs);
