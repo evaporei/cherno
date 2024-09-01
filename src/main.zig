@@ -1,5 +1,6 @@
 const std = @import("std");
 const c = @cImport({
+    @cInclude("glad/glad.h");
     @cInclude("GLFW/glfw3.h");
 });
 
@@ -20,18 +21,27 @@ pub fn main() !void {
     if (c.glfwInit() != c.GLFW_TRUE) {
         return error.GlfwInit;
     }
-    errdefer c.glfwTerminate();
+    defer c.glfwTerminate();
 
-    // c.glfwWindowHint(c.GLFW_CONTEXT_VERSION_MAJOR, 3);
-    // c.glfwWindowHint(c.GLFW_CONTEXT_VERSION_MINOR, 3);
+    c.glfwWindowHint(c.GLFW_CONTEXT_VERSION_MAJOR, 3);
+    c.glfwWindowHint(c.GLFW_CONTEXT_VERSION_MINOR, 3);
+    c.glfwWindowHint(c.GLFW_OPENGL_FORWARD_COMPAT, c.GL_TRUE);
+    c.glfwWindowHint(c.GLFW_OPENGL_PROFILE, c.GLFW_OPENGL_CORE_PROFILE);
+
     const window = c.glfwCreateWindow(640, 480, "cherno", null, null) orelse return error.NoWindow;
-    errdefer c.glfwDestroyWindow(window);
+    defer c.glfwDestroyWindow(window);
 
     c.glfwMakeContextCurrent(window);
+
+    _ = c.gladLoadGL();
+
     c.glfwSwapInterval(1);
 
     while (c.glfwWindowShouldClose(window) == 0) {
         processInput(window);
+
+        c.glClearColor(0.0, 0.0, 0.0, 1.0);
+        c.glClear(c.GL_COLOR_BUFFER_BIT | c.GL_DEPTH_BUFFER_BIT);
 
         c.glfwSwapBuffers(window);
         c.glfwPollEvents();

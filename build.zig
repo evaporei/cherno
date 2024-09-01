@@ -35,7 +35,18 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
+    exe.addCSourceFiles(.{
+        .files = &.{
+            "glad/src/glad.c",
+            // "src/stb_image.c",
+        },
+    });
+
+    exe.addIncludePath(b.path("glad/include"));
     exe.linkSystemLibrary("glfw3");
+    // exe.linkFramework("OpenGL");
+    exe.linkLibC();
+    exe.linkLibCpp();
 
     // This declares intent for the executable to be installed into the
     // standard location when the user invokes the "install" step (the default
