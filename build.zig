@@ -38,11 +38,13 @@ pub fn build(b: *std.Build) void {
     exe.addCSourceFiles(.{
         .files = &.{
             "glad/src/glad.c",
-            // "src/stb_image.c",
+            "src/stb_image.c",
         },
     });
 
     exe.addIncludePath(b.path("glad/include"));
+    exe.addIncludePath(b.path("stb_image"));
+
     exe.linkSystemLibrary("glfw3");
     // exe.linkFramework("OpenGL");
     exe.linkLibC();

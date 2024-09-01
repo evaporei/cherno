@@ -2,6 +2,8 @@ const std = @import("std");
 const c = @cImport({
     @cInclude("glad/glad.h");
     @cInclude("GLFW/glfw3.h");
+    @cInclude("stb_image.h");
+    @cInclude("clay/clay.h");
 });
 
 const ArrayList = std.ArrayList;
@@ -101,6 +103,9 @@ pub fn main() !void {
 
     c.glfwSwapInterval(1);
 
+    c.glBlendFunc(c.GL_SRC_ALPHA, c.GL_ONE_MINUS_SRC_ALPHA);
+    c.glEnable(c.GL_BLEND);
+
     var vao: u32 = undefined;
     c.glGenVertexArrays(1, &vao);
     defer c.glDeleteVertexArrays(1, &vao);
@@ -109,10 +114,10 @@ pub fn main() !void {
     defer c.glBindVertexArray(0);
 
     const positions = [_]f32{
-        -0.5, -0.5,
-        0.5,  0.5,
-        0.5,  -0.5,
-        -0.5, 0.5,
+        -0.5, -0.5, 0.0, 0.0,
+        0.5,  -0.5, 1.0, 0.0,
+        0.5,  0.5,  1.0, 1.0,
+        -0.5, 0.5,  0.0, 1.0,
     };
 
     var buffer: u32 = undefined;
@@ -129,15 +134,26 @@ pub fn main() !void {
         2, // each has 2
         c.GL_FLOAT, // type
         c.GL_FALSE, // no normals translation
-        2 * @sizeOf(f32), // each vertex has 2 floats
+        4 * @sizeOf(f32), // each vertex has 2 floats
         @ptrFromInt(@as(usize, @intCast(0)))
     );
     // zig fmt: on
     c.glEnableVertexAttribArray(0);
+    // zig fmt: off
+    c.glVertexAttribPointer(
+        0, // position in shader
+        2, // each has 2
+        c.GL_FLOAT, // type
+        c.GL_FALSE, // no normals translation
+        4 * @sizeOf(f32), // each vertex has 2 floats
+        @ptrFromInt(@as(usize, @intCast(8)))
+    );
+    // zig fmt: on
+    c.glEnableVertexAttribArray(1);
 
     const indices = [_]u32{
         0, 1, 2,
-        0, 1, 3,
+        2, 3, 0,
     };
 
     var ibo: u32 = undefined;
@@ -156,8 +172,44 @@ pub fn main() !void {
     const program = createProgram(vertexShader.items, fragmentShader.items);
     c.glUseProgram(program);
 
+    c.stbi_set_flip_vertically_on_load(1);
+    var width: c_int = 0;
+    var height: c_int = 0;
+
+    const img = c.stbi_load("res/textures/cherno_logo.png".ptr, &width, &height, null, 4);
+    if (img == 0) {
+        std.log.err("no stb image for you girl", .{});
+    } else {
+        std.debug.print("width: {d}, height: {d}\n", .{ width, height });
+    }
+    std.debug.print("img: {*}\n", .{img});
+    defer c.stbi_image_free(img);
+
+    var texture: c_uint = undefined;
+    c.glGenTextures(1, &texture);
+    c.glBindTexture(c.GL_TEXTURE_2D, texture);
+
+    c.glTexParameteri(c.GL_TEXTURE_2D, c.GL_TEXTURE_MIN_FILTER, c.GL_LINEAR);
+    c.glTexParameteri(c.GL_TEXTURE_2D, c.GL_TEXTURE_MAG_FILTER, c.GL_LINEAR);
+    c.glTexParameteri(c.GL_TEXTURE_2D, c.GL_TEXTURE_WRAP_S, c.GL_CLAMP_TO_EDGE);
+    c.glTexParameteri(c.GL_TEXTURE_2D, c.GL_TEXTURE_WRAP_T, c.GL_CLAMP_TO_EDGE);
+
+    c.glTexImage2D(c.GL_TEXTURE_2D, 0, c.GL_RGBA8, width, height, 0, c.GL_RGBA, c.GL_UNSIGNED_BYTE, img);
+    c.glBindTexture(c.GL_TEXTURE_2D, 0);
+
+    c.glActiveTexture(c.GL_TEXTURE0 + 0);
+    c.glBindTexture(c.GL_TEXTURE_2D, texture);
+
+    const texLocation = c.glGetUniformLocation(program, "u_Texture");
+    if (texLocation == -1) {
+        std.debug.print("texture is not being used\n", .{});
+    }
+    c.glUniform1i(texLocation, 0);
+
     const location = c.glGetUniformLocation(program, "u_Color");
-    std.debug.assert(location != -1);
+    if (location == -1) {
+        std.debug.print("uniform is not being used\n", .{});
+    }
     c.glUniform4f(location, 0.8, 0.3, 0.8, 1.0);
 
     glCheckError();
@@ -169,9 +221,14 @@ pub fn main() !void {
         processInput(window);
 
         c.glClearColor(0.0, 0.0, 0.0, 1.0);
-        c.glClear(c.GL_COLOR_BUFFER_BIT | c.GL_DEPTH_BUFFER_BIT);
+        c.glClear(c.GL_COLOR_BUFFER_BIT);
 
         c.glUniform4f(location, r, 0.3, 0.8, 1.0);
+
+        c.glUseProgram(program);
+        c.glBindVertexArray(vao);
+        c.glBindBuffer(c.GL_ELEMENT_ARRAY_BUFFER, ibo);
+
         c.glDrawElements(c.GL_TRIANGLES, 6, c.GL_UNSIGNED_INT, @ptrFromInt(@as(usize, @intCast(0))));
 
         if (r > 1.0) {
