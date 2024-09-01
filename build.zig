@@ -35,24 +35,7 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
-    const glfw_dep = b.dependency("mach_glfw", .{
-        .target = target,
-        .optimize = optimize,
-    });
-    exe.root_module.addImport("mach-glfw", glfw_dep.module("mach-glfw"));
-    // Use zigglgen to generate OpenGL bindings.
-    const gl_bindings = @import("zigglgen").generateBindingsModule(b, .{
-        .api = .gl,
-        .version = .@"4.1", // OpenGL 4.1 is the last version supported on macOS.
-        .profile = .core,
-    });
-    exe.root_module.addImport("gl", gl_bindings);
-
-    const stb_image_dep = b.dependency("zig_stb_image", .{
-        .target = target,
-        .optimize = optimize,
-    });
-    exe.root_module.addImport("stb-image", stb_image_dep.module("stb_image"));
+    exe.linkSystemLibrary("glfw3");
 
     // This declares intent for the executable to be installed into the
     // standard location when the user invokes the "install" step (the default
