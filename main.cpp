@@ -35,6 +35,43 @@ const char* readFile(const char *filepath)
     return (const char*) contents;
 }
 
+unsigned int compileShader(unsigned int kind, const char *src)
+{
+    unsigned int shader = glCreateShader(kind);
+    const int srcLen = (const int) strlen(src);
+    glShaderSource(shader, 1, &src, &srcLen);
+    glCompileShader(shader);
+
+    int result;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
+    if (result == GL_FALSE)
+    {
+        char message[512];
+        glGetShaderInfoLog(shader, strlen(message), NULL, message);
+        std::cerr << "shader go bad, err: " << message << std::endl;
+    }
+
+    return shader;
+}
+
+unsigned int createProgram(const char *vsrc, const char *fsrc)
+{
+    unsigned int program = glCreateProgram();
+
+    unsigned int vs = compileShader(GL_VERTEX_SHADER, vsrc);
+    unsigned int fs = compileShader(GL_FRAGMENT_SHADER, fsrc);
+
+    glAttachShader(program, vs);
+    glAttachShader(program, fs);
+    glLinkProgram(program);
+    glValidateProgram(program);
+
+    glDeleteShader(vs);
+    glDeleteShader(fs);
+
+    return program;
+}
+
 float positions[] = {
     -0.5f, -0.5f,
     0.5, 0.5,
@@ -90,12 +127,13 @@ int main(void)
 
     std::cout << vertexShaderSrc << std::endl;
 
-    free((void*) vertexShaderSrc);
-
     const char *fragmentShaderSrc = readFile("res/shaders/basic.fragment.shader");
 
     std::cout << fragmentShaderSrc << std::endl;
 
+    unsigned int program = createProgram(vertexShaderSrc, fragmentShaderSrc);
+
+    free((void*) vertexShaderSrc);
     free((void*) fragmentShaderSrc);
 
     while (!glfwWindowShouldClose(window))
