@@ -4,3 +4,9 @@
 /opt/homebrew/Cellar/glfw/3.4/lib
 -l
 glfw
+
+-framework
+OpenGL
+
+-I
+glad/include
