@@ -3,6 +3,7 @@
 #include <iostream>
 #include "stdlib.h"
 #include "stdio.h"
+#include "assert.h"
 
 void processInput(GLFWwindow *window)
 {
@@ -84,6 +85,14 @@ unsigned int indices[] = {
     0, 1, 3
 };
 
+void checkErrors() {
+    unsigned int err = glGetError();
+    while (err != GL_NO_ERROR) {
+        printf("%d\n", err);
+        err = glGetError();
+    }
+}
+
 int main(void)
 {
     if (!glfwInit())
@@ -118,23 +127,35 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(positions), &positions, GL_STATIC_DRAW);
 
+    glVertexAttribPointer(
+        0,
+        2,
+        GL_FLOAT,
+        GL_FALSE,
+        2 * sizeof(float),
+        (void*)0
+    );
+    glEnableVertexAttribArray(0);
+
     unsigned int ibo;
     glGenBuffers(1, &ibo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices, GL_STATIC_DRAW);
 
     const char *vertexShaderSrc = readFile("res/shaders/basic.vertex.shader");
-
-    std::cout << vertexShaderSrc << std::endl;
-
     const char *fragmentShaderSrc = readFile("res/shaders/basic.fragment.shader");
-
-    std::cout << fragmentShaderSrc << std::endl;
 
     unsigned int program = createProgram(vertexShaderSrc, fragmentShaderSrc);
 
+    glUseProgram(program);
+
     free((void*) vertexShaderSrc);
     free((void*) fragmentShaderSrc);
+
+    int location = glGetUniformLocation(program, "u_Color");
+    assert(location != -1);
+
+    checkErrors();
 
     while (!glfwWindowShouldClose(window))
     {
@@ -142,6 +163,9 @@ int main(void)
 
         glClear(GL_COLOR_BUFFER_BIT);
         glClearColor(0, 0, 0, 1);
+
+        glUniform4f(location, 0.8, 0.3, 0.8, 1.0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
