@@ -170,22 +170,24 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(positions), &positions, GL_STATIC_DRAW);
 
+    int offset = 0;
     glVertexAttribPointer(
         0,
         2,
         GL_FLOAT,
         GL_FALSE,
-        2 * sizeof(float),
-        (void*)0
+        4 * sizeof(float),
+        (void*)offset
     );
     glEnableVertexAttribArray(0);
+    offset += 2 * sizeof(float);
     glVertexAttribPointer(
         1,
         2,
         GL_FLOAT,
         GL_FALSE,
-        2 * sizeof(float),
-        (void*)0
+        4 * sizeof(float),
+        (void*)offset
     );
     glEnableVertexAttribArray(1);
 
@@ -230,8 +232,9 @@ int main(void)
         GL_UNSIGNED_BYTE,
         img.data
     );
+    glBindTexture(GL_TEXTURE_2D, texture);
     glActiveTexture(GL_TEXTURE0 + 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(GL_TEXTURE_2D, texture);
 
     free((void*) img.data);
 
@@ -253,7 +256,11 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT);
         glClearColor(0, 0, 0, 1);
 
-        glUniform4f(location, 0.8, 0.3, 0.8, 1.0);
+        glUseProgram(program);
+        glBindVertexArray(vao);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+
+        // glUniform4f(location, 0.8, 0.3, 0.8, 1.0);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
