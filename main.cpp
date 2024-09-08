@@ -114,15 +114,15 @@ unsigned int createProgram(const char *vsrc, const char *fsrc)
 }
 
 float positions[] = {
-    -0.5f, -0.5f,
-    0.5, 0.5,
-    0.5, -0.5,
-    -0.5, 0.5
+    -0.5, -0.5, 0.0, 0.0,
+    0.5,  -0.5, 1.0, 0.0,
+    0.5,  0.5,  1.0, 1.0,
+    -0.5, 0.5,  0.0, 1.0
 };
 
 unsigned int indices[] = {
     0, 1, 2,
-    0, 1, 3
+    2, 3, 0
 };
 
 void checkErrors() {
@@ -179,6 +179,15 @@ int main(void)
         (void*)0
     );
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(
+        1,
+        2,
+        GL_FLOAT,
+        GL_FALSE,
+        2 * sizeof(float),
+        (void*)0
+    );
+    glEnableVertexAttribArray(1);
 
     unsigned int ibo;
     glGenBuffers(1, &ibo);
@@ -195,15 +204,45 @@ int main(void)
     free((void*) vertexShaderSrc);
     free((void*) fragmentShaderSrc);
 
-    struct Image image = newImage("res/textures/cherno_logo.png");
-    if (!image.data)
+    struct Image img = newImage("res/textures/cherno_logo.png");
+    if (!img.data)
         printf("no img from stb somehow mf\n");
+    else
+        printf("loaded img with %dx%d\n", img.width, img.height);
 
-    free((void*) image.data);
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_RGBA8,
+        img.width,
+        img.height,
+        0,
+        GL_RGBA,
+        GL_UNSIGNED_BYTE,
+        img.data
+    );
+    glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    free((void*) img.data);
 
     int location = glGetUniformLocation(program, "u_Color");
     if (location == -1)
         printf("not using uniform u_Color\n");
+
+    int texLocation = glGetUniformLocation(program, "u_Texture");
+    if (texLocation == -1)
+        printf("not using uniform u_Texture\n");
+    glUniform1i(texLocation, 0);
 
     checkErrors();
 
