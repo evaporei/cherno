@@ -1,5 +1,8 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image/stb_image.h"
+
 #include <iostream>
 #include "stdlib.h"
 #include "stdio.h"
@@ -13,7 +16,7 @@ void processInput(GLFWwindow *window)
     }
 }
 
-const char* readFile(const char *filepath)
+const char* readTextFile(const char *filepath)
 {
     FILE *file = fopen(filepath, "r");
     if (!file)
@@ -34,6 +37,43 @@ const char* readFile(const char *filepath)
     fclose(file);
 
     return (const char*) contents;
+}
+
+struct Image {
+    const unsigned char *data;
+    unsigned long len;
+    int width;
+    int height;
+};
+
+struct Image newImage(const char *filepath)
+{
+    FILE *file = fopen(filepath, "r");
+    if (!file)
+    {
+        std::cerr << "failed to open file: " << filepath << std::endl;
+        return { .data = NULL, .len = 0, .width = 0, .height = 0 };
+    }
+
+    fseek(file, 0, SEEK_END);
+    long fileSize = ftell(file);
+    rewind(file);
+
+    char *contents = (char*) malloc(fileSize);
+
+    fread(contents, 1, fileSize, file);
+
+    fclose(file);
+
+    int width, height;
+
+    stbi_set_flip_vertically_on_load(1);
+    int desiredChannels = 3;
+    const unsigned char* data = stbi_load_from_memory((const unsigned char*)contents, fileSize, &width, &height, &desiredChannels, 4);
+
+    free((void*) contents);
+
+    return { .data = data, .len = (unsigned long) fileSize, .width = width, .height = height };
 }
 
 unsigned int compileShader(unsigned int kind, const char *src)
@@ -145,8 +185,8 @@ int main(void)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices, GL_STATIC_DRAW);
 
-    const char *vertexShaderSrc = readFile("res/shaders/basic.vertex.shader");
-    const char *fragmentShaderSrc = readFile("res/shaders/basic.fragment.shader");
+    const char *vertexShaderSrc = readTextFile("res/shaders/basic.vertex.shader");
+    const char *fragmentShaderSrc = readTextFile("res/shaders/basic.fragment.shader");
 
     unsigned int program = createProgram(vertexShaderSrc, fragmentShaderSrc);
 
@@ -154,6 +194,12 @@ int main(void)
 
     free((void*) vertexShaderSrc);
     free((void*) fragmentShaderSrc);
+
+    struct Image image = newImage("res/textures/cherno_logo.png");
+    if (!image.data)
+        printf("no img from stb somehow mf\n");
+
+    free((void*) image.data);
 
     int location = glGetUniformLocation(program, "u_Color");
     if (location == -1)
