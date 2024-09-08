@@ -3,7 +3,6 @@ const c = @cImport({
     @cInclude("glad/glad.h");
     @cInclude("GLFW/glfw3.h");
     @cInclude("stb_image.h");
-    @cInclude("clay/clay.h");
 });
 
 const ArrayList = std.ArrayList;
@@ -141,7 +140,7 @@ pub fn main() !void {
     c.glEnableVertexAttribArray(0);
     // zig fmt: off
     c.glVertexAttribPointer(
-        0, // position in shader
+        1, // position in shader
         2, // each has 2
         c.GL_FLOAT, // type
         c.GL_FALSE, // no normals translation
