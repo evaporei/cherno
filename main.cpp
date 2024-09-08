@@ -153,7 +153,8 @@ int main(void)
     free((void*) fragmentShaderSrc);
 
     int location = glGetUniformLocation(program, "u_Color");
-    assert(location != -1);
+    if (location == -1)
+        printf("not using uniform u_Color\n");
 
     checkErrors();
 
