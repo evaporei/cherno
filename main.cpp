@@ -8,6 +8,8 @@
 #include "stdio.h"
 #include "assert.h"
 
+#include "vertex_array.h"
+
 void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -161,9 +163,7 @@ int main(void)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
 
-    unsigned int vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    struct VertexArray vao = vao_init();
 
     unsigned int vbo;
     glGenBuffers(1, &vbo);
@@ -257,7 +257,7 @@ int main(void)
         glClearColor(0, 0, 0, 1);
 
         glUseProgram(program);
-        glBindVertexArray(vao);
+        // glBindVertexArray(vao);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
         // glUniform4f(location, 0.8, 0.3, 0.8, 1.0);
