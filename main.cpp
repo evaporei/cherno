@@ -11,6 +11,7 @@
 #include "vertex_array.h"
 #include "vertex_buffer.h"
 #include "index_buffer.h"
+#include "shader.h"
 
 void processInput(GLFWwindow *window)
 {
@@ -18,29 +19,6 @@ void processInput(GLFWwindow *window)
     {
         glfwSetWindowShouldClose(window, 1);
     }
-}
-
-const char* readTextFile(const char *filepath)
-{
-    FILE *file = fopen(filepath, "r");
-    if (!file)
-    {
-        std::cerr << "failed to open file: " << filepath << std::endl;
-        return NULL;
-    }
-
-    fseek(file, 0, SEEK_END);
-    long fileSize = ftell(file);
-    rewind(file);
-
-    char *contents = (char*) malloc(fileSize + 1);
-
-    fread(contents, 1, fileSize, file);
-    contents[fileSize] = '\0';
-
-    fclose(file);
-
-    return (const char*) contents;
 }
 
 struct Image {
@@ -78,43 +56,6 @@ struct Image newImage(const char *filepath)
     free((void*) contents);
 
     return { .data = data, .len = (unsigned long) fileSize, .width = width, .height = height };
-}
-
-unsigned int compileShader(unsigned int kind, const char *src)
-{
-    unsigned int shader = glCreateShader(kind);
-    const int srcLen = (const int) strlen(src);
-    glShaderSource(shader, 1, &src, &srcLen);
-    glCompileShader(shader);
-
-    int result;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
-    if (result == GL_FALSE)
-    {
-        char message[512];
-        glGetShaderInfoLog(shader, strlen(message), NULL, message);
-        std::cerr << "shader go bad, err: " << message << std::endl;
-    }
-
-    return shader;
-}
-
-unsigned int createProgram(const char *vsrc, const char *fsrc)
-{
-    unsigned int program = glCreateProgram();
-
-    unsigned int vs = compileShader(GL_VERTEX_SHADER, vsrc);
-    unsigned int fs = compileShader(GL_FRAGMENT_SHADER, fsrc);
-
-    glAttachShader(program, vs);
-    glAttachShader(program, fs);
-    glLinkProgram(program);
-    glValidateProgram(program);
-
-    glDeleteShader(vs);
-    glDeleteShader(fs);
-
-    return program;
 }
 
 float positions[] = {
@@ -192,15 +133,7 @@ int main(void)
 
     struct IndexBuffer ibo = ibo_init(indices, sizeof(indices) / sizeof(indices[0]));
 
-    const char *vertexShaderSrc = readTextFile("res/shaders/basic.vertex.shader");
-    const char *fragmentShaderSrc = readTextFile("res/shaders/basic.fragment.shader");
-
-    unsigned int program = createProgram(vertexShaderSrc, fragmentShaderSrc);
-
-    glUseProgram(program);
-
-    free((void*) vertexShaderSrc);
-    free((void*) fragmentShaderSrc);
+    struct Shader shader = shader_init("res/shaders/basic.vertex.shader", "res/shaders/basic.fragment.shader");
 
     struct Image img = newImage("res/textures/cherno_logo.png");
     if (!img.data)
@@ -234,11 +167,11 @@ int main(void)
 
     free((void*) img.data);
 
-    int location = glGetUniformLocation(program, "u_Color");
+    int location = glGetUniformLocation(shader.id, "u_Color");
     if (location == -1)
         printf("not using uniform u_Color\n");
 
-    int texLocation = glGetUniformLocation(program, "u_Texture");
+    int texLocation = glGetUniformLocation(shader.id, "u_Texture");
     if (texLocation == -1)
         printf("not using uniform u_Texture\n");
     glUniform1i(texLocation, 0);
@@ -252,7 +185,7 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT);
         glClearColor(0, 0, 0, 1);
 
-        glUseProgram(program);
+        // glUseProgram(program);
         // glBindVertexArray(vao);
         // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
