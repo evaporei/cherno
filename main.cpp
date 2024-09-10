@@ -1,7 +1,5 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image/stb_image.h"
 
 #include <iostream>
 #include "stdlib.h"
@@ -12,6 +10,7 @@
 #include "vertex_buffer.h"
 #include "index_buffer.h"
 #include "shader.h"
+#include "texture.h"
 
 void processInput(GLFWwindow *window)
 {
@@ -19,43 +18,6 @@ void processInput(GLFWwindow *window)
     {
         glfwSetWindowShouldClose(window, 1);
     }
-}
-
-struct Image {
-    const unsigned char *data;
-    unsigned long len;
-    int width;
-    int height;
-};
-
-struct Image newImage(const char *filepath)
-{
-    FILE *file = fopen(filepath, "r");
-    if (!file)
-    {
-        std::cerr << "failed to open file: " << filepath << std::endl;
-        return { .data = NULL, .len = 0, .width = 0, .height = 0 };
-    }
-
-    fseek(file, 0, SEEK_END);
-    long fileSize = ftell(file);
-    rewind(file);
-
-    char *contents = (char*) malloc(fileSize);
-
-    fread(contents, 1, fileSize, file);
-
-    fclose(file);
-
-    int width, height;
-
-    stbi_set_flip_vertically_on_load(1);
-    int desiredChannels = 3;
-    const unsigned char* data = stbi_load_from_memory((const unsigned char*)contents, fileSize, &width, &height, &desiredChannels, 4);
-
-    free((void*) contents);
-
-    return { .data = data, .len = (unsigned long) fileSize, .width = width, .height = height };
 }
 
 float positions[] = {
@@ -135,37 +97,7 @@ int main(void)
 
     struct Shader shader = shader_init("res/shaders/basic.vertex.shader", "res/shaders/basic.fragment.shader");
 
-    struct Image img = newImage("res/textures/cherno_logo.png");
-    if (!img.data)
-        printf("no img from stb somehow mf\n");
-    else
-        printf("loaded img with %dx%d\n", img.width, img.height);
-
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glTexImage2D(
-        GL_TEXTURE_2D,
-        0,
-        GL_RGBA8,
-        img.width,
-        img.height,
-        0,
-        GL_RGBA,
-        GL_UNSIGNED_BYTE,
-        img.data
-    );
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glActiveTexture(GL_TEXTURE0 + 0);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    free((void*) img.data);
+    struct Texture texture = texture_init("res/textures/cherno_logo.png");
 
     int location = glGetUniformLocation(shader.id, "u_Color");
     if (location == -1)
