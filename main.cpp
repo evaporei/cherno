@@ -9,6 +9,7 @@
 #include "assert.h"
 
 #include "vertex_array.h"
+#include "vertex_buffer.h"
 
 void processInput(GLFWwindow *window)
 {
@@ -165,10 +166,7 @@ int main(void)
 
     struct VertexArray vao = vao_init();
 
-    unsigned int vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(positions), &positions, GL_STATIC_DRAW);
+    struct VertexBuffer vbo = vbo_init(positions, sizeof(positions));
 
     int offset = 0;
     glVertexAttribPointer(
