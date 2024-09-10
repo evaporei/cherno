@@ -10,6 +10,7 @@
 
 #include "vertex_array.h"
 #include "vertex_buffer.h"
+#include "index_buffer.h"
 
 void processInput(GLFWwindow *window)
 {
@@ -189,10 +190,7 @@ int main(void)
     );
     glEnableVertexAttribArray(1);
 
-    unsigned int ibo;
-    glGenBuffers(1, &ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices, GL_STATIC_DRAW);
+    struct IndexBuffer ibo = ibo_init(indices, sizeof(indices) / sizeof(indices[0]));
 
     const char *vertexShaderSrc = readTextFile("res/shaders/basic.vertex.shader");
     const char *fragmentShaderSrc = readTextFile("res/shaders/basic.fragment.shader");
@@ -256,7 +254,7 @@ int main(void)
 
         glUseProgram(program);
         // glBindVertexArray(vao);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+        // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
         // glUniform4f(location, 0.8, 0.3, 0.8, 1.0);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
