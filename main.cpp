@@ -7,6 +7,7 @@
 
 #include "vertex_array.h"
 #include "vertex_buffer.h"
+#include "vertex_buffer_layout.h"
 #include "index_buffer.h"
 #include "shader.h"
 #include "texture.h"
@@ -71,28 +72,13 @@ int main(void)
 
     struct VertexBuffer vbo = vbo_init(positions, sizeof(positions));
 
-    int offset = 0;
-    glVertexAttribPointer(
-        0,
-        2,
-        GL_FLOAT,
-        GL_FALSE,
-        4 * sizeof(float),
-        (void*)offset
-    );
-    glEnableVertexAttribArray(0);
-    offset += 2 * sizeof(float);
-    glVertexAttribPointer(
-        1,
-        2,
-        GL_FLOAT,
-        GL_FALSE,
-        4 * sizeof(float),
-        (void*)offset
-    );
-    glEnableVertexAttribArray(1);
-
     struct IndexBuffer ibo = ibo_init(indices, sizeof(indices) / sizeof(indices[0]));
+
+    struct Layout layout = layout_init();
+    layout_push_f32(&layout, 2);
+    layout_push_f32(&layout, 2);
+
+    vao_add_buffer(&vao, layout);
 
     struct Shader shader = shader_init("res/shaders/basic.vertex.shader", "res/shaders/basic.fragment.shader");
 
