@@ -83,3 +83,23 @@ struct Shader shader_init(const char* vertexShaderPath, const char* fragmentShad
 
     return shader;
 }
+
+int get_uniform_location(struct Shader *self, const char *name) {
+    if (self->uniformLocationCache.contains(name))
+        return self->uniformLocationCache[name];
+    int location = glGetUniformLocation(self->id, name);
+    if (location == -1)
+        printf("not using uniform %s\n", name);
+    self->uniformLocationCache[name] = location;
+    return location;
+}
+
+void shader_set_uniform_4f(struct Shader *self, const char *name, float v0, float v1, float v2, float v3) {
+
+    glUniform4f(get_uniform_location(self, name), v0, v1, v2, v3);
+}
+
+void shader_set_uniform_1i(struct Shader *self, const char* name, int v) {
+
+    glUniform1i(get_uniform_location(self, name), v);
+}

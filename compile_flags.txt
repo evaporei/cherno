@@ -1,5 +1,5 @@
 -xc++
--std=c++11
+-std=c++20
 
 -I
 /opt/homebrew/Cellar/glfw/3.4/include

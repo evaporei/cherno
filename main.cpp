@@ -84,14 +84,8 @@ int main(void)
 
     struct Texture texture = texture_init("res/textures/cherno_logo.png");
 
-    int location = glGetUniformLocation(shader.id, "u_Color");
-    if (location == -1)
-        printf("not using uniform u_Color\n");
-
-    int texLocation = glGetUniformLocation(shader.id, "u_Texture");
-    if (texLocation == -1)
-        printf("not using uniform u_Texture\n");
-    glUniform1i(texLocation, 0);
+    shader_set_uniform_4f(&shader, "u_Color", 0.8, 0.3, 0.8, 1.0);
+    shader_set_uniform_1i(&shader, "u_Texture", 0);
 
     checkErrors();
 
@@ -106,7 +100,6 @@ int main(void)
         // glBindVertexArray(vao);
         // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
-        // glUniform4f(location, 0.8, 0.3, 0.8, 1.0);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
