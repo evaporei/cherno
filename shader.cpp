@@ -1,8 +1,8 @@
 #include "shader.h"
 
-#include <iostream>
 #include "stdlib.h"
 #include "stdio.h"
+#include "string.h"
 
 #include "glad/glad.h"
 
@@ -19,7 +19,7 @@ unsigned int compileShader(unsigned int kind, const char *src)
     {
         char message[512];
         glGetShaderInfoLog(shader, strlen(message), NULL, message);
-        std::cerr << "shader go bad, err: " << message << std::endl;
+        fprintf(stderr, "shader go bad, err: %s\n", message);
     }
 
     return shader;
@@ -48,7 +48,7 @@ const char* readTextFile(const char *filepath)
     FILE *file = fopen(filepath, "r");
     if (!file)
     {
-        std::cerr << "failed to open file: " << filepath << std::endl;
+        fprintf(stderr, "failed to open file: %s\n", filepath);
         return NULL;
     }
 

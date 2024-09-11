@@ -1,7 +1,5 @@
 #include "texture.h"
 
-#include <iostream>
-
 #include "glad/glad.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
@@ -18,7 +16,7 @@ struct Image newImage(const char *filepath)
     FILE *file = fopen(filepath, "r");
     if (!file)
     {
-        std::cerr << "failed to open file: " << filepath << std::endl;
+        fprintf(stderr, "failed to open file: %s\n", filepath);
         return { .data = NULL, .len = 0, .width = 0, .height = 0 };
     }
 
