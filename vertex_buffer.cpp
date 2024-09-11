@@ -11,3 +11,7 @@ struct VertexBuffer vbo_init(const void *data, unsigned int size) {
 
     return vbo;
 }
+
+void vbo_bind(struct VertexBuffer self) {
+    glBindBuffer(GL_ARRAY_BUFFER, self.id);
+}

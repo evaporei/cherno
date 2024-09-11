@@ -79,6 +79,10 @@ struct Shader shader_init(const char* vertexShaderPath, const char* fragmentShad
     return shader;
 }
 
+void shader_bind(struct Shader self) {
+    glUseProgram(self.id);
+}
+
 int get_uniform_location(struct Shader *self, const char *name) {
     if (self->uniformLocationCache.contains(name))
         return self->uniformLocationCache[name];

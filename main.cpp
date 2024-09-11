@@ -1,14 +1,15 @@
+#include "assert.h"
+#include "stdlib.h"
+#include "stdio.h"
+
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
-#include "stdlib.h"
-#include "stdio.h"
-#include "assert.h"
-
+#include "index_buffer.h"
 #include "vertex_array.h"
 #include "vertex_buffer.h"
 #include "vertex_buffer_layout.h"
-#include "index_buffer.h"
+#include "renderer.h"
 #include "shader.h"
 #include "texture.h"
 
@@ -73,7 +74,7 @@ int main(void) {
     layout_push_f32(&layout, 2);
     layout_push_f32(&layout, 2);
 
-    vao_add_buffer(&vao, layout);
+    vao_add_buffer(&vao, vbo, layout);
 
     struct Shader shader = shader_init("res/shaders/basic.vertex.shader", "res/shaders/basic.fragment.shader");
 
@@ -87,14 +88,9 @@ int main(void) {
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
 
-        glClear(GL_COLOR_BUFFER_BIT);
-        glClearColor(0, 0, 0, 1);
+        renderer_clear();
 
-        // glUseProgram(program);
-        // glBindVertexArray(vao);
-        // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        renderer_draw(&shader, &vao, &ibo);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

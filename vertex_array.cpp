@@ -9,7 +9,12 @@ struct VertexArray vao_init() {
     return vao;
 }
 
-void vao_add_buffer(struct VertexArray *self, struct Layout layout) {
+void vao_bind(struct VertexArray self) {
+    glBindVertexArray(self.id);
+}
+
+void vao_add_buffer(struct VertexArray *self, struct VertexBuffer vbo, struct Layout layout) {
+    vbo_bind(vbo);
     int offset = 0;
     for (unsigned int i = 0; i < layout.elements.size(); i++) {
         struct Element element = layout.elements[i];
