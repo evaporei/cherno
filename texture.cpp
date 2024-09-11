@@ -11,11 +11,9 @@ struct Image {
     int height;
 };
 
-struct Image newImage(const char *filepath)
-{
+struct Image newImage(const char *filepath) {
     FILE *file = fopen(filepath, "r");
-    if (!file)
-    {
+    if (!file) {
         fprintf(stderr, "failed to open file: %s\n", filepath);
         return { .data = NULL, .len = 0, .width = 0, .height = 0 };
     }

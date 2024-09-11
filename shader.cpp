@@ -6,8 +6,7 @@
 
 #include "glad/glad.h"
 
-unsigned int compileShader(unsigned int kind, const char *src)
-{
+unsigned int compileShader(unsigned int kind, const char *src) {
     unsigned int shader = glCreateShader(kind);
     const int srcLen = (const int) strlen(src);
     glShaderSource(shader, 1, &src, &srcLen);
@@ -15,8 +14,7 @@ unsigned int compileShader(unsigned int kind, const char *src)
 
     int result;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
-    if (result == GL_FALSE)
-    {
+    if (result == GL_FALSE) {
         char message[512];
         glGetShaderInfoLog(shader, strlen(message), NULL, message);
         fprintf(stderr, "shader go bad, err: %s\n", message);
@@ -25,8 +23,7 @@ unsigned int compileShader(unsigned int kind, const char *src)
     return shader;
 }
 
-unsigned int createProgram(const char *vsrc, const char *fsrc)
-{
+unsigned int createProgram(const char *vsrc, const char *fsrc) {
     unsigned int program = glCreateProgram();
 
     unsigned int vs = compileShader(GL_VERTEX_SHADER, vsrc);
@@ -43,11 +40,9 @@ unsigned int createProgram(const char *vsrc, const char *fsrc)
     return program;
 }
 
-const char* readTextFile(const char *filepath)
-{
+const char* readTextFile(const char *filepath) {
     FILE *file = fopen(filepath, "r");
-    if (!file)
-    {
+    if (!file) {
         fprintf(stderr, "failed to open file: %s\n", filepath);
         return NULL;
     }

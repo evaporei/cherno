@@ -12,10 +12,8 @@
 #include "shader.h"
 #include "texture.h"
 
-void processInput(GLFWwindow *window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    {
+void processInput(GLFWwindow *window) {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, 1);
     }
 }
@@ -40,8 +38,7 @@ void checkErrors() {
     }
 }
 
-int main(void)
-{
+int main(void) {
     if (!glfwInit())
         return -1;
     
@@ -52,16 +49,14 @@ int main(void)
 
     GLFWwindow *window = glfwCreateWindow(640, 480, "cherno opengl", NULL, NULL);
 
-    if (!window)
-    {
+    if (!window) {
         glfwTerminate();
         return -1;
     }
 
     glfwMakeContextCurrent(window);
 
-    if (gladLoadGL() == GL_FALSE)
-    {
+    if (gladLoadGL() == GL_FALSE) {
         return -1;
     }
 
@@ -89,8 +84,7 @@ int main(void)
 
     checkErrors();
 
-    while (!glfwWindowShouldClose(window))
-    {
+    while (!glfwWindowShouldClose(window)) {
         processInput(window);
 
         glClear(GL_COLOR_BUFFER_BIT);
