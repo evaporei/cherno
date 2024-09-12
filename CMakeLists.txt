@@ -16,7 +16,6 @@ set(THIRDPARTY_DIR "${CMAKE_SOURCE_DIR}/thirdparty")
 add_subdirectory("${THIRDPARTY_DIR}/glfw")
 add_subdirectory("${THIRDPARTY_DIR}/glad")
 add_subdirectory("${THIRDPARTY_DIR}/glm")
-add_subdirectory("${THIRDPARTY_DIR}/stb_image")
 
 # ------------------------------------------------------------------------------
 # Source files
@@ -37,7 +36,8 @@ set(SOURCE_FILES
 
 add_executable(cherno_exe ${SOURCE_FILES})
 target_compile_options(cherno_exe PUBLIC ${MY_FLAGS})
-target_link_libraries(cherno_exe PUBLIC glfw glm::glm glad)
 
 add_library(stb_image INTERFACE)
-target_include_directories(stb_image PUBLIC thirdparty/stb_image)
+target_include_directories(stb_image INTERFACE thirdparty)
+
+target_link_libraries(cherno_exe PUBLIC glfw glm::glm glad stb_image)
