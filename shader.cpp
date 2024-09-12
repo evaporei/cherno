@@ -102,3 +102,7 @@ void shader_set_uniform_1i(struct Shader *self, const char* name, int v) {
 
     glUniform1i(get_uniform_location(self, name), v);
 }
+
+void shader_set_uniform_mat4f(struct Shader *self, const char *name, glm::mat4 m) {
+    glUniformMatrix4fv(get_uniform_location(self, name), 1, GL_FALSE, &m[0][0]);
+}

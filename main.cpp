@@ -4,6 +4,8 @@
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 #include "index_buffer.h"
 #include "vertex_array.h"
@@ -76,12 +78,15 @@ int main(void) {
 
     vao_add_buffer(&vao, vbo, layout);
 
+    glm::mat4 projection = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+
     struct Shader shader = shader_init("res/shaders/basic.vertex.shader", "res/shaders/basic.fragment.shader");
 
     struct Texture texture = texture_init("res/textures/cherno_logo.png");
 
     shader_set_uniform_4f(&shader, "u_Color", 0.8, 0.3, 0.8, 1.0);
     shader_set_uniform_1i(&shader, "u_Texture", 0);
+    shader_set_uniform_mat4f(&shader, "u_MVP", projection);
 
     checkErrors();
 
