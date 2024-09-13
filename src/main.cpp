@@ -23,10 +23,10 @@ void processInput(GLFWwindow *window) {
 }
 
 float positions[] = {
-    -0.5, -0.5, 0.0, 0.0,
-    0.5,  -0.5, 1.0, 0.0,
-    0.5,  0.5,  1.0, 1.0,
-    -0.5, 0.5,  0.0, 1.0
+    100.0f, 100.0f, 0.0f, 0.0f,
+    200.0f, 100.0f, 1.0f, 0.0f,
+    200.0f, 200.0f, 1.0f, 1.0f,
+    100.0f, 200.0f, 0.0f, 1.0f
 };
 
 unsigned int indices[] = {
@@ -51,7 +51,7 @@ int main(void) {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow *window = glfwCreateWindow(640, 480, "cherno opengl", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(960, 540, "cherno opengl", NULL, NULL);
 
     if (!window) {
         glfwTerminate();
@@ -79,7 +79,15 @@ int main(void) {
 
     vao_add_buffer(&vao, vbo, layout);
 
-    glm::mat4 projection = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+    // "type of camera" -> ortho (flat/"2D") or perspective (depth/"3D")
+    glm::mat4 projection = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f);
+    // "camera", to move to left, we must move everything to the right
+    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100, 0, 0));
+    // translation, rotation and scale
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(200, 200, 0));
+    
+    // order matters because of OpenGL's column based ordering
+    glm::mat4 mvp = projection * view * model;
 
     struct Shader shader = shader_init("res/shaders/basic.vertex.shader", "res/shaders/basic.fragment.shader");
 
@@ -87,7 +95,7 @@ int main(void) {
 
     shader_set_uniform_4f(&shader, "u_Color", 0.8, 0.3, 0.8, 1.0);
     shader_set_uniform_1i(&shader, "u_Texture", 0);
-    shader_set_uniform_mat4f(&shader, "u_MVP", projection);
+    shader_set_uniform_mat4f(&shader, "u_MVP", mvp);
 
     checkErrors();
 
