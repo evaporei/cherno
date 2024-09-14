@@ -26,10 +26,10 @@ void processInput(GLFWwindow *window) {
 }
 
 float positions[] = {
-    100.0f, 100.0f, 0.0f, 0.0f,
-    200.0f, 100.0f, 1.0f, 0.0f,
-    200.0f, 200.0f, 1.0f, 1.0f,
-    100.0f, 200.0f, 0.0f, 1.0f
+    -50.0f, -50.0f, 0.0f, 0.0f,
+    50.0f, -50.0f, 1.0f, 0.0f,
+    50.0f, 50.0f, 1.0f, 1.0f,
+    -50.0f, 50.0f, 0.0f, 1.0f
 };
 
 unsigned int indices[] = {
@@ -85,9 +85,10 @@ int main(void) {
     // "type of camera" -> ortho (flat/"2D") or perspective (depth/"3D")
     glm::mat4 projection = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f);
     // "camera", to move to left, we must move everything to the right
-    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100, 0, 0));
+    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
 
-    glm::vec3 translation(200, 200, 0);
+    glm::vec3 translationA(200, 200, 0);
+    glm::vec3 translationB(400, 200, 0);
 
     struct Shader shader = shader_init("res/shaders/basic.vertex.shader", "res/shaders/basic.fragment.shader");
 
@@ -117,17 +118,31 @@ int main(void) {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // translation, rotation and scale
-        glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
-        
-        // order matters because of OpenGL's column based ordering
-        glm::mat4 mvp = projection * view * model;
-        shader_set_uniform_mat4f(&shader, "u_MVP", mvp);
+        {
+            // translation, rotation and scale
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), translationA);
 
-        renderer_draw(&shader, &vao, &ibo);
+            // order matters because of OpenGL's column based ordering
+            glm::mat4 mvp = projection * view * model;
+            shader_set_uniform_mat4f(&shader, "u_MVP", mvp);
+
+            renderer_draw(&shader, &vao, &ibo);
+        }
 
         {
-            ImGui::SliderFloat3("translation", &translation.x, 0.0f, 960.0f);
+            // translation, rotation and scale
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), translationB);
+
+            // order matters because of OpenGL's column based ordering
+            glm::mat4 mvp = projection * view * model;
+            shader_set_uniform_mat4f(&shader, "u_MVP", mvp);
+
+            renderer_draw(&shader, &vao, &ibo);
+        }
+
+        {
+            ImGui::SliderFloat3("translation a", &translationA.x, 0.0f, 960.0f);
+            ImGui::SliderFloat3("translation b", &translationB.x, 0.0f, 960.0f);
 
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
             ImGui::End();
