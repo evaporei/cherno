@@ -49,6 +49,8 @@ set(SOURCE_FILES
     "${CMAKE_SOURCE_DIR}/src/vertex_buffer.cpp"
     "${CMAKE_SOURCE_DIR}/src/vertex_buffer_element.cpp"
     "${CMAKE_SOURCE_DIR}/src/vertex_buffer_layout.cpp"
+
+    "${CMAKE_SOURCE_DIR}/src/scenes/textures_2D.cpp"
 )
 
 add_executable(cherno_exe ${SOURCE_FILES})
