@@ -19,9 +19,7 @@ unsigned int indices[] = {
     2, 3, 0
 };
 
-struct Textures2DScene textures_2D_scene_init() {
-    struct Textures2DScene scene;
-
+void textures_2D_scene_init(struct Textures2DScene *scene) {
     struct VertexArray vao = vao_init();
 
     struct VertexBuffer vbo = vbo_init(positions, sizeof(positions));
@@ -41,13 +39,11 @@ struct Textures2DScene textures_2D_scene_init() {
     shader_set_uniform_4f(&shader, "u_Color", 0.8, 0.3, 0.8, 1.0);
     shader_set_uniform_1i(&shader, "u_Texture", 0);
 
-    scene.vao = vao;
-    scene.ibo = ibo;
-    scene.shader = shader;
-    scene.translationA = glm::vec3(200, 200, 0);
-    scene.translationB = glm::vec3(400, 200, 0);
-
-    return scene;
+    scene->vao = vao;
+    scene->ibo = ibo;
+    scene->shader = shader;
+    scene->translationA = glm::vec3(200, 200, 0);
+    scene->translationB = glm::vec3(400, 200, 0);
 }
 
 void textures_2D_scene_update(struct Textures2DScene *self) {

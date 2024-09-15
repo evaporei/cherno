@@ -17,7 +17,7 @@ struct Textures2DScene {
     glm::vec3 translationB;
 };
 
-struct Textures2DScene textures_2D_scene_init();
+void textures_2D_scene_init(struct Textures2DScene *self);
 
 void textures_2D_scene_update(struct Textures2DScene *self);
 

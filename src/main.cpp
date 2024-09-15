@@ -11,7 +11,7 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-#include "scenes/textures_2D.h"
+#include "scenes/scene.h"
 
 void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -64,20 +64,21 @@ int main(void) {
 
     checkErrors();
 
-    struct Textures2DScene scene = textures_2D_scene_init();
+    struct Scene scene;
+    scene_init(&scene);
 
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
 
-        textures_2D_scene_update(&scene);
+        scene_update(&scene);
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        textures_2D_scene_draw(&scene);
+        scene_draw(&scene);
 
-        textures_2D_scene_imgui(&scene);
+        scene_imgui(&scene);
 
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
         ImGui::End();
