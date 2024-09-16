@@ -75,8 +75,8 @@ void shader_init(struct Shader *shader, const char* vertexShaderPath, const char
     shader->id = program;
 }
 
-void shader_bind(struct Shader self) {
-    glUseProgram(self.id);
+void shader_bind(struct Shader *self) {
+    glUseProgram(self->id);
 }
 
 int get_uniform_location(struct Shader *self, const char *name) {

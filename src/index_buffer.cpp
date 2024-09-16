@@ -10,6 +10,6 @@ void ibo_init(struct IndexBuffer *ibo, const unsigned int *data, unsigned int co
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW);
 }
 
-void ibo_bind(struct IndexBuffer self) {
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.id);
+void ibo_bind(struct IndexBuffer *self) {
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self->id);
 }

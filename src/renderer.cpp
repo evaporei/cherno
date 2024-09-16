@@ -8,8 +8,8 @@ void renderer_clear() {
 }
 
 void renderer_draw(struct Shader *shader, struct VertexArray *vao, struct IndexBuffer *ibo) {
-    shader_bind(*shader);
-    vao_bind(*vao);
-    ibo_bind(*ibo);
+    shader_bind(shader);
+    vao_bind(vao);
+    ibo_bind(ibo);
     glDrawElements(GL_TRIANGLES, ibo->count, GL_UNSIGNED_INT, 0);
 }

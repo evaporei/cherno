@@ -9,6 +9,6 @@ struct VertexArray {
 
 void vao_init(struct VertexArray *vao);
 
-void vao_bind(struct VertexArray self);
+void vao_bind(struct VertexArray *self);
 
 void vao_add_buffer(struct VertexArray *self, struct VertexBuffer vbo, struct Layout layout);
