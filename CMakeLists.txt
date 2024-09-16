@@ -6,6 +6,16 @@ set(CMAKE_CXX_STANDARD 20)
 # Enable Clangd LSP integration with the project
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Set default build type to Debug if none is specified
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build (Debug or Release)" FORCE)
+endif()
+
+# Add the DEBUG macro when building in Debug mode
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions(-DDEBUG)
+endif()
+
 # ------------------------------------------------------------------------------
 # Third-party dependencies
 # ------------------------------------------------------------------------------

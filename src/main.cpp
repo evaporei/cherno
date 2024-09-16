@@ -16,14 +16,6 @@ void processInput(GLFWwindow *window) {
     }
 }
 
-void checkErrors() {
-    unsigned int err = glGetError();
-    while (err != GL_NO_ERROR) {
-        printf("%d\n", err);
-        err = glGetError();
-    }
-}
-
 int main(void) {
     if (!glfwInit())
         return -1;
@@ -48,6 +40,12 @@ int main(void) {
 
     glfwSwapInterval(1);
 
+#ifdef DEBUG
+    printf("debug\n");
+#else
+    printf("release\n");
+#endif
+
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
 
@@ -64,8 +62,6 @@ int main(void) {
     struct Scene scene;
     // scene_init(&scene, TEXTURES_2D_SCENE);
     scene_init(&scene, SQUARE_SCENE);
-
-    checkErrors();
 
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
