@@ -7,14 +7,14 @@
 #include "../vertex_buffer.h"
 #include "../vertex_buffer_layout.h"
 
-float positions[] = {
+static float positions[] = {
     -50.0f, -50.0f, 0.0f, 0.0f,
     50.0f, -50.0f, 1.0f, 0.0f,
     50.0f, 50.0f, 1.0f, 1.0f,
     -50.0f, 50.0f, 0.0f, 1.0f
 };
 
-unsigned int indices[] = {
+static unsigned int indices[] = {
     0, 1, 2,
     2, 3, 0
 };
@@ -32,7 +32,7 @@ void textures_2D_scene_init(struct Textures2DScene *scene) {
 
     vao_add_buffer(&vao, vbo, layout);
 
-    struct Shader shader = shader_init("res/shaders/basic.vertex.shader", "res/shaders/basic.fragment.shader");
+    struct Shader shader = shader_init("res/shaders/texture.vertex.shader", "res/shaders/texture.fragment.shader");
 
     struct Texture _ = texture_init("res/textures/cherno_logo.png");
 

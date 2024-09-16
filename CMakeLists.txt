@@ -51,6 +51,7 @@ set(SOURCE_FILES
     "${CMAKE_SOURCE_DIR}/src/vertex_buffer_layout.cpp"
 
     "${CMAKE_SOURCE_DIR}/src/scenes/textures_2D.cpp"
+    "${CMAKE_SOURCE_DIR}/src/scenes/square.cpp"
     "${CMAKE_SOURCE_DIR}/src/scenes/scene.cpp"
 )
 

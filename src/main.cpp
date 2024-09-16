@@ -65,7 +65,8 @@ int main(void) {
     checkErrors();
 
     struct Scene scene;
-    scene_init(&scene);
+    // scene_init(&scene, TEXTURES_2D_SCENE);
+    scene_init(&scene, SQUARE_SCENE);
 
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
