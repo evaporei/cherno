@@ -9,7 +9,7 @@ struct Shader {
     std::unordered_map<const char*, int> uniformLocationCache;
 };
 
-struct Shader shader_init(const char* vertexShaderPath, const char* fragmentShaderPath);
+void shader_init(struct Shader *shader, const char* vertexShaderPath, const char* fragmentShaderPath);
 
 void shader_bind(struct Shader self);
 

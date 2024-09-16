@@ -9,7 +9,7 @@ struct Layout {
     int stride;
 };
 
-struct Layout layout_init();
+void layout_init(struct Layout *layout);
 
 void layout_push_f32(struct Layout *self, unsigned int count);
 void layout_push_u32(struct Layout *self, unsigned int count);

@@ -11,11 +11,15 @@ struct Image {
     int height;
 };
 
-struct Image newImage(const char *filepath) {
+void image_init(struct Image *image, const char *filepath) {
     FILE *file = fopen(filepath, "r");
     if (!file) {
         fprintf(stderr, "failed to open file: %s\n", filepath);
-        return { .data = NULL, .len = 0, .width = 0, .height = 0 };
+        image->data = NULL;
+        image->len = 0;
+        image->width = 0;
+        image->height = 0;
+        return;
     }
 
     fseek(file, 0, SEEK_END);
@@ -36,19 +40,22 @@ struct Image newImage(const char *filepath) {
 
     free((void*) contents);
 
-    return { .data = data, .len = (unsigned long) fileSize, .width = width, .height = height };
+    image->data = data;
+    image->len = (unsigned long) fileSize;
+    image->width = width;
+    image->height = height;
 }
 
-struct Texture texture_init(const char* path) {
-    struct Image img = newImage(path);
+void texture_init(struct Texture *texture, const char* path) {
+    struct Image img;
+    image_init(&img, path);
     if (!img.data)
         printf("no img from stb somehow mf\n");
     else
         printf("loaded img with %dx%d\n", img.width, img.height);
 
-    struct Texture texture;
-    glGenTextures(1, &texture.id);
-    glBindTexture(GL_TEXTURE_2D, texture.id);
+    glGenTextures(1, &texture->id);
+    glBindTexture(GL_TEXTURE_2D, texture->id);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -66,11 +73,9 @@ struct Texture texture_init(const char* path) {
         GL_UNSIGNED_BYTE,
         img.data
     );
-    glBindTexture(GL_TEXTURE_2D, texture.id);
+    glBindTexture(GL_TEXTURE_2D, texture->id);
     glActiveTexture(GL_TEXTURE0 + 0);
-    glBindTexture(GL_TEXTURE_2D, texture.id);
+    glBindTexture(GL_TEXTURE_2D, texture->id);
 
     free((void*) img.data);
-
-    return texture;
 }

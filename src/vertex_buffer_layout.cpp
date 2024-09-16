@@ -2,12 +2,8 @@
 
 #include "glad/glad.h"
 
-struct Layout layout_init() {
-    struct Layout layout;
-
-    layout.stride = 0;
-
-    return layout;
+void layout_init(struct Layout *layout) {
+    layout->stride = 0;
 }
 
 void layout_push_f32(struct Layout *self, unsigned int count) {

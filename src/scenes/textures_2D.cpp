@@ -20,29 +20,29 @@ static unsigned int indices[] = {
 };
 
 void textures_2D_scene_init(struct Textures2DScene *scene) {
-    struct VertexArray vao = vao_init();
+    vao_init(&scene->vao);
 
-    struct VertexBuffer vbo = vbo_init(positions, sizeof(positions));
+    struct VertexBuffer vbo;
+    vbo_init(&vbo, positions, sizeof(positions));
 
-    struct IndexBuffer ibo = ibo_init(indices, sizeof(indices) / sizeof(indices[0]));
+    ibo_init(&scene->ibo, indices, sizeof(indices) / sizeof(indices[0]));
 
-    struct Layout layout = layout_init();
+    struct Layout layout;
+    layout_init(&layout);
     layout_push_f32(&layout, 2);
     layout_push_f32(&layout, 2);
 
-    vao_add_buffer(&vao, vbo, layout);
+    vao_add_buffer(&scene->vao, vbo, layout);
 
-    struct Shader shader = shader_init("res/shaders/texture.vertex.shader", "res/shaders/texture.fragment.shader");
+    shader_init(&scene->shader, "res/shaders/texture.vertex.shader", "res/shaders/texture.fragment.shader");
 
-    struct Texture _ = texture_init("res/textures/cherno_logo.png");
+    struct Texture texture;
+    texture_init(&texture, "res/textures/cherno_logo.png");
 
-    shader_set_uniform_4f(&shader, "u_Color", 0.8, 0.3, 0.8, 1.0);
-    shader_set_uniform_1i(&shader, "u_Texture", 0);
+    shader_set_uniform_4f(&scene->shader, "u_Color", 0.8, 0.3, 0.8, 1.0);
+    shader_set_uniform_1i(&scene->shader, "u_Texture", 0);
 
     scene->name = "textures 2D scene";
-    scene->vao = vao;
-    scene->ibo = ibo;
-    scene->shader = shader;
     scene->translationA = glm::vec3(200, 200, 0);
     scene->translationB = glm::vec3(400, 200, 0);
 }

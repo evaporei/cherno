@@ -5,6 +5,6 @@ struct IndexBuffer {
     unsigned int count;
 };
 
-struct IndexBuffer ibo_init(const unsigned int *data, unsigned int count);
+void ibo_init(struct IndexBuffer *ibo, const unsigned int *data, unsigned int count);
 
 void ibo_bind(struct IndexBuffer self);

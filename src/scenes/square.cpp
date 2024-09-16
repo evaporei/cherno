@@ -21,25 +21,24 @@ static unsigned int indices[] = {
 };
 
 void square_scene_init(struct SquareScene *scene) {
-    struct VertexArray vao = vao_init();
+    vao_init(&scene->vao);
 
-    struct VertexBuffer vbo = vbo_init(positions, sizeof(positions));
+    struct VertexBuffer vbo;
+    vbo_init(&vbo, positions, sizeof(positions));
 
-    struct IndexBuffer ibo = ibo_init(indices, sizeof(indices) / sizeof(indices[0]));
+    ibo_init(&scene->ibo, indices, sizeof(indices) / sizeof(indices[0]));
 
-    struct Layout layout = layout_init();
+    struct Layout layout;
+    layout_init(&layout);
     layout_push_f32(&layout, 2);
 
-    vao_add_buffer(&vao, vbo, layout);
+    vao_add_buffer(&scene->vao, vbo, layout);
 
-    struct Shader shader = shader_init("res/shaders/basic.vertex.shader", "res/shaders/basic.fragment.shader");
+    shader_init(&scene->shader, "res/shaders/basic.vertex.shader", "res/shaders/basic.fragment.shader");
 
-    shader_set_uniform_4f(&shader, "u_Color", 0.8, 0.3, 0.8, 1.0);
+    shader_set_uniform_4f(&scene->shader, "u_Color", 0.8, 0.3, 0.8, 1.0);
 
     scene->name = "square scene";
-    scene->vao = vao;
-    scene->ibo = ibo;
-    scene->shader = shader;
     scene->red = 0;
     scene->increment = 0.008;
 }

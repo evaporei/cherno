@@ -61,9 +61,7 @@ const char* readTextFile(const char *filepath) {
     return (const char*) contents;
 }
 
-struct Shader shader_init(const char* vertexShaderPath, const char* fragmentShaderPath) {
-    struct Shader shader;
-
+void shader_init(struct Shader *shader, const char* vertexShaderPath, const char* fragmentShaderPath) {
     const char *vertexShaderSrc = readTextFile(vertexShaderPath);
     const char *fragmentShaderSrc = readTextFile(fragmentShaderPath);
 
@@ -74,9 +72,7 @@ struct Shader shader_init(const char* vertexShaderPath, const char* fragmentShad
     free((void*) vertexShaderSrc);
     free((void*) fragmentShaderSrc);
     
-    shader.id = program;
-
-    return shader;
+    shader->id = program;
 }
 
 void shader_bind(struct Shader self) {

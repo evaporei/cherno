@@ -4,4 +4,4 @@ struct Texture {
     unsigned int id;
 };
 
-struct Texture texture_init(const char* path);
+void texture_init(struct Texture *texture, const char* path);

@@ -7,7 +7,7 @@ struct VertexArray {
     unsigned int id;
 };
 
-struct VertexArray vao_init();
+void vao_init(struct VertexArray *vao);
 
 void vao_bind(struct VertexArray self);
 
