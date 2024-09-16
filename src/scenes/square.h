@@ -8,6 +8,9 @@ struct SquareScene {
     struct VertexArray vao;
     struct IndexBuffer ibo;
     struct Shader shader;
+
+    float red;
+    float increment;
 };
 
 void square_scene_init(struct SquareScene *self);
