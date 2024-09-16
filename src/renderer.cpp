@@ -8,8 +8,7 @@ void renderer_clear() {
     glCall(glClearColor(0, 0, 0, 1));
 }
 
-void renderer_draw(struct Shader *shader, struct VertexArray *vao, struct IndexBuffer *ibo) {
-    shader_bind(shader);
+void renderer_draw(struct VertexArray *vao, struct IndexBuffer *ibo) {
     vao_bind(vao);
     ibo_bind(ibo);
     glCall(glDrawElements(GL_TRIANGLES, ibo->count, GL_UNSIGNED_INT, 0));

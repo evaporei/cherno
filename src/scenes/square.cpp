@@ -60,11 +60,12 @@ void square_scene_draw(struct SquareScene *self) {
     glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(480, 270, 0));
 
     glm::mat4 mvp = projection * view * model;
-    shader_set_uniform_mat4f(&self->shader, "u_MVP", mvp);
 
+    shader_bind(&self->shader);
+    shader_set_uniform_mat4f(&self->shader, "u_MVP", mvp);
     shader_set_uniform_4f(&self->shader, "u_Color", self->red, 0.3f, 0.8f, 1.0f);
 
-    renderer_draw(&self->shader, &self->vao, &self->ibo);
+    renderer_draw(&self->vao, &self->ibo);
 }
 
 void square_scene_imgui(struct SquareScene *self) {

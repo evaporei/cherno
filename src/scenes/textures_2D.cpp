@@ -6,6 +6,7 @@
 #include "../texture.h"
 #include "../vertex_buffer.h"
 #include "../vertex_buffer_layout.h"
+#include "../shader.h"
 
 static float positions[] = {
     -50.0f, -50.0f, 0.0f, 0.0f,
@@ -39,7 +40,7 @@ void textures_2D_scene_init(struct Textures2DScene *scene) {
     struct Texture texture;
     texture_init(&texture, "res/textures/cherno_logo.png");
 
-    shader_set_uniform_4f(&scene->shader, "u_Color", 0.8, 0.3, 0.8, 1.0);
+    // shader_set_uniform_4f(&scene->shader, "u_Color", 0.8, 0.3, 0.8, 1.0);
     shader_set_uniform_1i(&scene->shader, "u_Texture", 0);
 
     scene->name = "textures 2D scene";
@@ -54,6 +55,8 @@ void textures_2D_scene_update(struct Textures2DScene *self) {
 void textures_2D_scene_draw(struct Textures2DScene *self) {
     renderer_clear();
 
+    shader_bind(&self->shader);
+
     {
         glm::mat4 projection = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f);
         glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
@@ -62,7 +65,7 @@ void textures_2D_scene_draw(struct Textures2DScene *self) {
         glm::mat4 mvp = projection * view * model;
         shader_set_uniform_mat4f(&self->shader, "u_MVP", mvp);
 
-        renderer_draw(&self->shader, &self->vao, &self->ibo);
+        renderer_draw(&self->vao, &self->ibo);
     }
 
     {
@@ -73,7 +76,7 @@ void textures_2D_scene_draw(struct Textures2DScene *self) {
         glm::mat4 mvp = projection * view * model;
         shader_set_uniform_mat4f(&self->shader, "u_MVP", mvp);
 
-        renderer_draw(&self->shader, &self->vao, &self->ibo);
+        renderer_draw(&self->vao, &self->ibo);
     }
 }
 

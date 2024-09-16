@@ -61,9 +61,11 @@ void batch_quads_scene_draw(struct BatchQuadsScene *self) {
     glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(50, 50, 0));
 
     glm::mat4 mvp = projection * view * model;
+
+    shader_bind(&self->shader);
     shader_set_uniform_mat4f(&self->shader, "u_MVP", mvp);
 
-    renderer_draw(&self->shader, &self->vao, &self->ibo);
+    renderer_draw(&self->vao, &self->ibo);
 }
 
 void batch_quads_scene_imgui(struct BatchQuadsScene *self) {
