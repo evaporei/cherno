@@ -61,11 +61,11 @@ int main(void) {
     // ImGui_ImplOpenGL3_Init("#version 330 core");
     ImGui_ImplOpenGL3_Init("#version 150");
 
-    checkErrors();
-
     struct Scene scene;
     // scene_init(&scene, TEXTURES_2D_SCENE);
     scene_init(&scene, SQUARE_SCENE);
+
+    checkErrors();
 
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
