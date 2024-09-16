@@ -61,6 +61,7 @@ set(SOURCE_FILES
     "${CMAKE_SOURCE_DIR}/src/vertex_buffer_element.cpp"
     "${CMAKE_SOURCE_DIR}/src/vertex_buffer_layout.cpp"
 
+    "${CMAKE_SOURCE_DIR}/src/scenes/batch_colors.cpp"
     "${CMAKE_SOURCE_DIR}/src/scenes/batch_quads.cpp"
     "${CMAKE_SOURCE_DIR}/src/scenes/textures_2D.cpp"
     "${CMAKE_SOURCE_DIR}/src/scenes/square.cpp"

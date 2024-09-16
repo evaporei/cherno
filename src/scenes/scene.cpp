@@ -7,6 +7,7 @@ void scene_init(struct Scene *scene, enum SceneType typ) {
     textures_2D_scene_init(&scene->textures2D);
     square_scene_init(&scene->square);
     batch_quads_scene_init(&scene->batchQuads);
+    batch_colors_scene_init(&scene->batchColors);
 }
 
 void scene_choose(struct Scene *scene, enum SceneType typ) {
@@ -24,6 +25,9 @@ void scene_update(struct Scene *scene) {
         case BATCH_QUADS_SCENE:
             batch_quads_scene_update(&scene->batchQuads);
             break;
+        case BATCH_COLORS_SCENE:
+            batch_colors_scene_update(&scene->batchColors);
+            break;
     }
 }
 
@@ -38,6 +42,9 @@ void scene_draw(struct Scene *scene) {
         case BATCH_QUADS_SCENE:
             batch_quads_scene_draw(&scene->batchQuads);
             break;
+        case BATCH_COLORS_SCENE:
+            batch_colors_scene_draw(&scene->batchColors);
+            break;
     }
 }
 
@@ -50,6 +57,8 @@ void scene_imgui(struct Scene *scene) {
                 scene_choose(scene, SQUARE_SCENE);
             else if (ImGui::Button(scene->batchQuads.name))
                 scene_choose(scene, BATCH_QUADS_SCENE);
+            else if (ImGui::Button(scene->batchColors.name))
+                scene_choose(scene, BATCH_COLORS_SCENE);
 
             textures_2D_scene_imgui(&scene->textures2D);
             break;
@@ -60,6 +69,8 @@ void scene_imgui(struct Scene *scene) {
                 scene_choose(scene, TEXTURES_2D_SCENE);
             else if (ImGui::Button(scene->batchQuads.name))
                 scene_choose(scene, BATCH_QUADS_SCENE);
+            else if (ImGui::Button(scene->batchColors.name))
+                scene_choose(scene, BATCH_COLORS_SCENE);
 
             square_scene_imgui(&scene->square);
             break;
@@ -70,8 +81,22 @@ void scene_imgui(struct Scene *scene) {
                 scene_choose(scene, TEXTURES_2D_SCENE);
             else if (ImGui::Button(scene->square.name))
                 scene_choose(scene, SQUARE_SCENE);
+            else if (ImGui::Button(scene->batchColors.name))
+                scene_choose(scene, BATCH_COLORS_SCENE);
 
             batch_quads_scene_imgui(&scene->batchQuads);
+            break;
+        case BATCH_COLORS_SCENE:
+            ImGui::Begin(scene->batchColors.name);
+
+            if (ImGui::Button(scene->textures2D.name))
+                scene_choose(scene, TEXTURES_2D_SCENE);
+            else if (ImGui::Button(scene->square.name))
+                scene_choose(scene, SQUARE_SCENE);
+            else if (ImGui::Button(scene->batchQuads.name))
+                scene_choose(scene, BATCH_QUADS_SCENE);
+
+            batch_colors_scene_imgui(&scene->batchColors);
             break;
     }
 }
