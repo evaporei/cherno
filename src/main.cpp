@@ -9,6 +9,7 @@
 #include <GLFW/glfw3.h>
 
 #include "scenes/scene.h"
+#include "error.h"
 
 void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -40,14 +41,8 @@ int main(void) {
 
     glfwSwapInterval(1);
 
-#ifdef DEBUG
-    printf("debug\n");
-#else
-    printf("release\n");
-#endif
-
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
+    glCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+    glCall(glEnable(GL_BLEND));
 
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();

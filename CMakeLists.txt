@@ -50,8 +50,9 @@ target_link_libraries(imgui PRIVATE glfw)
 
 set(MY_FLAGS "-std=c++20" "-Wall")
 set(SOURCE_FILES
-    "${CMAKE_SOURCE_DIR}/src/main.cpp"
+    "${CMAKE_SOURCE_DIR}/src/error.cpp"
     "${CMAKE_SOURCE_DIR}/src/index_buffer.cpp"
+    "${CMAKE_SOURCE_DIR}/src/main.cpp"
     "${CMAKE_SOURCE_DIR}/src/renderer.cpp"
     "${CMAKE_SOURCE_DIR}/src/shader.cpp"
     "${CMAKE_SOURCE_DIR}/src/texture.cpp"

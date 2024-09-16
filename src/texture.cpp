@@ -4,6 +4,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
 
+#include "error.h"
+
 struct Image {
     const unsigned char *data;
     unsigned long len;
@@ -54,15 +56,15 @@ void texture_init(struct Texture *texture, const char* path) {
     else
         printf("loaded img with %dx%d\n", img.width, img.height);
 
-    glGenTextures(1, &texture->id);
-    glBindTexture(GL_TEXTURE_2D, texture->id);
+    glCall(glGenTextures(1, &texture->id));
+    glCall(glBindTexture(GL_TEXTURE_2D, texture->id));
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+    glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+    glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+    glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 
-    glTexImage2D(
+    glCall(glTexImage2D(
         GL_TEXTURE_2D,
         0,
         GL_RGBA8,
@@ -72,10 +74,10 @@ void texture_init(struct Texture *texture, const char* path) {
         GL_RGBA,
         GL_UNSIGNED_BYTE,
         img.data
-    );
-    glBindTexture(GL_TEXTURE_2D, texture->id);
-    glActiveTexture(GL_TEXTURE0 + 0);
-    glBindTexture(GL_TEXTURE_2D, texture->id);
+    ));
+    glCall(glBindTexture(GL_TEXTURE_2D, texture->id));
+    glCall(glActiveTexture(GL_TEXTURE0 + 0));
+    glCall(glBindTexture(GL_TEXTURE_2D, texture->id));
 
     free((void*) img.data);
 }

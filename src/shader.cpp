@@ -6,17 +6,19 @@
 
 #include "glad/glad.h"
 
+#include "error.h"
+
 unsigned int compileShader(unsigned int kind, const char *src) {
     unsigned int shader = glCreateShader(kind);
     const int srcLen = (const int) strlen(src);
-    glShaderSource(shader, 1, &src, &srcLen);
-    glCompileShader(shader);
+    glCall(glShaderSource(shader, 1, &src, &srcLen));
+    glCall(glCompileShader(shader));
 
     int result;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
+    glCall(glGetShaderiv(shader, GL_COMPILE_STATUS, &result));
     if (result == GL_FALSE) {
         char message[512];
-        glGetShaderInfoLog(shader, strlen(message), NULL, message);
+        glCall(glGetShaderInfoLog(shader, strlen(message), NULL, message));
         fprintf(stderr, "shader go bad, err: %s\n", message);
     }
 
@@ -29,13 +31,13 @@ unsigned int createProgram(const char *vsrc, const char *fsrc) {
     unsigned int vs = compileShader(GL_VERTEX_SHADER, vsrc);
     unsigned int fs = compileShader(GL_FRAGMENT_SHADER, fsrc);
 
-    glAttachShader(program, vs);
-    glAttachShader(program, fs);
-    glLinkProgram(program);
-    glValidateProgram(program);
+    glCall(glAttachShader(program, vs));
+    glCall(glAttachShader(program, fs));
+    glCall(glLinkProgram(program));
+    glCall(glValidateProgram(program));
 
-    glDeleteShader(vs);
-    glDeleteShader(fs);
+    glCall(glDeleteShader(vs));
+    glCall(glDeleteShader(fs));
 
     return program;
 }
@@ -67,7 +69,7 @@ void shader_init(struct Shader *shader, const char* vertexShaderPath, const char
 
     unsigned int program = createProgram(vertexShaderSrc, fragmentShaderSrc);
 
-    glUseProgram(program);
+    glCall(glUseProgram(program));
 
     free((void*) vertexShaderSrc);
     free((void*) fragmentShaderSrc);
@@ -76,7 +78,7 @@ void shader_init(struct Shader *shader, const char* vertexShaderPath, const char
 }
 
 void shader_bind(struct Shader *self) {
-    glUseProgram(self->id);
+    glCall(glUseProgram(self->id));
 }
 
 int get_uniform_location(struct Shader *self, const char *name) {
@@ -91,14 +93,14 @@ int get_uniform_location(struct Shader *self, const char *name) {
 
 void shader_set_uniform_4f(struct Shader *self, const char *name, float v0, float v1, float v2, float v3) {
 
-    glUniform4f(get_uniform_location(self, name), v0, v1, v2, v3);
+    glCall(glUniform4f(get_uniform_location(self, name), v0, v1, v2, v3));
 }
 
 void shader_set_uniform_1i(struct Shader *self, const char* name, int v) {
 
-    glUniform1i(get_uniform_location(self, name), v);
+    glCall(glUniform1i(get_uniform_location(self, name), v));
 }
 
 void shader_set_uniform_mat4f(struct Shader *self, const char *name, glm::mat4 m) {
-    glUniformMatrix4fv(get_uniform_location(self, name), 1, GL_FALSE, &m[0][0]);
+    glCall(glUniformMatrix4fv(get_uniform_location(self, name), 1, GL_FALSE, &m[0][0]));
 }
