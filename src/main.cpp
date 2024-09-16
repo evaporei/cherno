@@ -56,7 +56,8 @@ int main(void) {
 
     struct Scene scene;
     // scene_init(&scene, TEXTURES_2D_SCENE);
-    scene_init(&scene, SQUARE_SCENE);
+    // scene_init(&scene, SQUARE_SCENE);
+    scene_init(&scene, BATCH_QUADS_SCENE);
 
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
