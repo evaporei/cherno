@@ -5,6 +5,8 @@
 #include "../vertex_array.h"
 
 struct SquareScene {
+    const char *name;
+
     struct VertexArray vao;
     struct IndexBuffer ibo;
     struct Shader shader;

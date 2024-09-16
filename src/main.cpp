@@ -7,9 +7,6 @@
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/ext/matrix_clip_space.hpp>
-#include <glm/ext/matrix_transform.hpp>
 
 #include "scenes/scene.h"
 
@@ -73,11 +70,11 @@ int main(void) {
 
         scene_update(&scene);
 
+        scene_draw(&scene);
+
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
-        scene_draw(&scene);
 
         scene_imgui(&scene);
 

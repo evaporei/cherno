@@ -9,6 +9,8 @@
 #include "../vertex_array.h"
 
 struct Textures2DScene {
+    const char *name;
+
     struct VertexArray vao;
     struct IndexBuffer ibo;
     struct Shader shader;

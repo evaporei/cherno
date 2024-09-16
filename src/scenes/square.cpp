@@ -36,6 +36,7 @@ void square_scene_init(struct SquareScene *scene) {
 
     shader_set_uniform_4f(&shader, "u_Color", 0.8, 0.3, 0.8, 1.0);
 
+    scene->name = "square scene";
     scene->vao = vao;
     scene->ibo = ibo;
     scene->shader = shader;

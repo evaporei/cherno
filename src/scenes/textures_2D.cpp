@@ -39,6 +39,7 @@ void textures_2D_scene_init(struct Textures2DScene *scene) {
     shader_set_uniform_4f(&shader, "u_Color", 0.8, 0.3, 0.8, 1.0);
     shader_set_uniform_1i(&shader, "u_Texture", 0);
 
+    scene->name = "textures 2D scene";
     scene->vao = vao;
     scene->ibo = ibo;
     scene->shader = shader;
